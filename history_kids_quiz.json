@@ -38,5 +38,15 @@
       "CLUE 1: Black and white tuxedo feathers!",
       "CLUE 2: I waddle on ice and slide on snow!"
     ]
+  },
+  {
+    "topic_id": "baby_elephant",
+    "name": "Baby Elephant",
+    "category": "animals",
+    "completed_at": "2026-10-21 18:39:50",
+    "clues": [
+      "CLUE 1: Huge floppy ears!",
+      "CLUE 2: A long playful curved trunk!"
+    ]
   }
 ]
