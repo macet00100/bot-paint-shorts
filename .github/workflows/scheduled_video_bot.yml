@@ -1,13 +1,16 @@
-name: Automated MS Paint Video Bot 24/7
+name: POV Pencil Sketch Video Bot 24/7 Cloud
 
 on:
   schedule:
-    # Top 3 viral slots for US/International viewers:
+    # 3 Viral International Time Slots (converted to UTC):
     # 07:00 AM VN = 00:00 UTC (08:00 PM US EDT - Prime Time Evening scroll)
     # 07:00 PM VN = 12:00 UTC (08:00 AM US EDT - Morning commute / Europe afternoon)
     # 11:00 PM VN = 16:00 UTC (12:00 PM US EDT - Midday lunch break peak)
     - cron: '0 0,12,16 * * *'
-  workflow_dispatch: # Allows manual trigger from GitHub UI anytime
+  workflow_dispatch: # Allows manual 1-click trigger from GitHub Actions tab anytime
+
+permissions:
+  contents: write
 
 jobs:
   build-and-publish:
@@ -16,6 +19,8 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
@@ -23,12 +28,12 @@ jobs:
           python-version: '3.12'
           cache: 'pip'
 
-      - name: Install FFmpeg
+      - name: Install System Dependencies (FFmpeg & OpenCV Libs)
         run: |
           sudo apt-get update
-          sudo apt-get install -y ffmpeg
+          sudo apt-get install -y ffmpeg libsm6 libxext6 libgl1-mesa-glx
 
-      - name: Install Dependencies
+      - name: Install Python Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
@@ -56,6 +61,14 @@ jobs:
           TIKTOK_SESSION_COOKIE: ${{ secrets.TIKTOK_SESSION_COOKIE }}
         run: |
           python main.py --run-now
+
+      - name: Commit Updated Object History (Anti-Duplication)
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add history_objects.json
+          git commit -m "chore: record newly drawn object to history [skip ci]" || echo "No history changes to commit"
+          git push origin main || echo "Push skipped"
 
       - name: Archive Generated Videos & Logs
         uses: actions/upload-artifact@v4

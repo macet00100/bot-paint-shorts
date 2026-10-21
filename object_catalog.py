@@ -164,14 +164,12 @@ class ObjectCurator:
 
         display_name = object_name.title()
 
-        # Detailed prompt for high-quality graphite pencil sketch
+        # Ultra-clean minimalist prompt for simple, tutorial-style line art
         image_prompt = (
-            f"masterpiece detailed pencil sketch drawing of a single {object_name}, "
-            f"drawn with graphite pencil on fine textured white sketchbook paper, "
-            f"clean off-white background, crisp dark graphite pencil line art, "
-            f"realistic cross-hatching shading, delicate pencil textures, "
-            f"hand-drawn academic pencil drawing, high detail, 4k resolution, "
-            f"pure monochrome graphite art, absolutely no colors, black and white sketch"
+            f"minimalist simple line art pencil sketch of a single {object_name}, "
+            f"coloring book style, clean black pencil contour lines on pure white paper, "
+            f"simple easy drawing tutorial for beginners, "
+            f"no clutter, no complex background, perfectly centered, isolated on white background"
         )
 
         # Video Title: short, crisp, highly searchable

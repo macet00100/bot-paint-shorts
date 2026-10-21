@@ -61,7 +61,7 @@ class AIArtist:
 
         if not success:
             print("[!] Could not fetch from Pollinations, using existing reference or generating fallback art...")
-            ref_path = ASSETS_DIR / "paint_reference.jpg"
+            ref_path = ASSETS_DIR / "sketch_reference.jpg"
             if ref_path.exists():
                 img = Image.open(ref_path)
             else:
