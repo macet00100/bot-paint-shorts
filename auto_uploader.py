@@ -253,10 +253,11 @@ class AutoUploader:
     # ==========================================
     # UNIFIED MULTI-PLATFORM POSTER
     # ==========================================
-    def upload_all(self, video_path, title, description, tags=None):
+    def upload_all(self, video_path, title, description, tags=None, topic_pkg=None):
         """
         Pushes the video to YouTube Shorts, Facebook Reels, and TikTok.
         Saves metadata log.
+        Triggers instant community engagement (Auto-Like & First Pinned Comment).
         """
         results = {}
         print("\n" + "=" * 50)
@@ -271,6 +272,14 @@ class AutoUploader:
         
         # 3. TikTok
         results["tiktok"] = self.upload_to_tiktok(video_path, f"{title} {description}")
+
+        # Trigger Instant Community Engagement (Auto-Like & First Comment)
+        try:
+            from auto_community import CommunityManager
+            cm = CommunityManager()
+            cm.on_video_published(results, topic_pkg or {"name": title})
+        except Exception as e:
+            print(f"[!] Community auto-engagement notice: {e}")
 
         # Save record
         meta_file = Path(video_path).with_suffix(".json")
