@@ -16,6 +16,7 @@ from config import SCHEDULE_TIMES, OUTPUT_DIR, TEMP_DIR
 from object_catalog import ObjectCurator
 from ai_artist import AIArtist
 from voice_generator import VoiceGenerator
+from ai_video_engine import AIVideoEngine
 from sketch_engine import SketchEngine
 from video_composer import VideoComposer
 from auto_uploader import AutoUploader
@@ -65,18 +66,34 @@ def run_pipeline(trigger_time="MANUAL", target_object=None, enable_upload=False)
         voice_path = TEMP_DIR / f"voice_{timestamp_str}.mp3"
         voice_gen.generate_voiceover(pkg["full_script"], voice_path)
 
-        # Step 4: Sketchbook Drawing Animation
-        print("\n--- STEP 4: SKETCHBOOK DRAWING ANIMATION (9:16) ---")
-        engine = SketchEngine()
-        raw_video_path = TEMP_DIR / f"sketch_raw_{timestamp_str}.mp4"
-        engine.render_sketch_video(image_path, display_name, raw_video_path)
-
-        # Step 5: Final Video Composition with ASMR & BGM
-        print("\n--- STEP 5: AUDIO COMPOSITION & SYNC ---")
-        composer = VideoComposer()
+        # Step 4: True Living AI Video Generation (Hugging Face LTX-Video)
+        print("\n--- STEP 4: LIVING AI VIDEO GENERATION (LTX-VIDEO DISTILLED) ---")
         final_video_name = f"sketch_{timestamp_str}.mp4"
         final_video_path = OUTPUT_DIR / final_video_name
-        composer.compose_final_video(raw_video_path, voice_path, final_video_path)
+
+        ai_success = False
+        try:
+            ai_engine = AIVideoEngine()
+            if ai_engine.client is not None:
+                ai_engine.render_full_tutorial(
+                    object_name=obj_name,
+                    display_name=display_name,
+                    voiceover_path=voice_path,
+                    output_video_path=final_video_path
+                )
+                ai_success = True
+        except Exception as ai_err:
+            print(f"[!] AI Video Engine encountered issue: {ai_err}. Falling back to POV sketch engine...")
+
+        if not ai_success:
+            print("\n--- STEP 4 (FALLBACK): POV SKETCH ENGINE ANIMATION (9:16) ---")
+            engine = SketchEngine()
+            raw_video_path = TEMP_DIR / f"sketch_raw_{timestamp_str}.mp4"
+            engine.render_sketch_video(image_path, display_name, raw_video_path)
+
+            print("\n--- STEP 5: AUDIO COMPOSITION & SYNC ---")
+            composer = VideoComposer()
+            composer.compose_final_video(raw_video_path, voice_path, final_video_path)
 
         # Step 6: Multi-Platform Auto Upload (Only when enabled)
         if enable_upload:
