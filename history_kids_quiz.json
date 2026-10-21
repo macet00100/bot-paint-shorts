@@ -58,5 +58,15 @@
       "CLUE 1: Round fuzzy ears and button nose!",
       "CLUE 2: I sleep in eucalyptus trees all day!"
     ]
+  },
+  {
+    "topic_id": "baby_sea_turtle",
+    "name": "Baby Sea Turtle",
+    "category": "animals",
+    "completed_at": "2026-10-21 23:06:37",
+    "clues": [
+      "CLUE 1: A smooth green protective shell!",
+      "CLUE 2: I love swimming across the deep ocean!"
+    ]
   }
 ]
