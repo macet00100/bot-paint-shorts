@@ -27,7 +27,7 @@ if sys.stderr and hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8")
 
 
-def run_pipeline(trigger_time="MANUAL", target_object=None):
+def run_pipeline(trigger_time="MANUAL", target_object=None, enable_upload=False):
     """
     Executes the full automated pencil sketch workflow:
     1. Select unique, non-repeating everyday object from catalog
@@ -35,11 +35,12 @@ def run_pipeline(trigger_time="MANUAL", target_object=None):
     3. AI generates synchronized native English tutorial voiceover
     4. POV Sketch Engine renders ~35s 9:16 drawing video on A4 desk paper
     5. Video Composer adds ASMR pencil scratching, lofi BGM, and muxes video
-    6. Auto Uploader posts to YouTube Shorts, Facebook Reels, and TikTok
+    6. Multi-platform upload only if enable_upload=True
     """
     timestamp_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     print("\n" + "=" * 60)
     print(f"[*] RUNNING PENCIL SKETCH PIPELINE [{trigger_time}] at {timestamp_str}")
+    print(f"[*] Mode: {'LIVE AUTO-UPLOAD' if enable_upload else 'LOCAL PREVIEW ONLY (Safe Mode)'}")
     print("=" * 60)
 
     try:
@@ -77,18 +78,24 @@ def run_pipeline(trigger_time="MANUAL", target_object=None):
         final_video_path = OUTPUT_DIR / final_video_name
         composer.compose_final_video(raw_video_path, voice_path, final_video_path)
 
-        # Step 6: Multi-Platform Auto Upload
-        print("\n--- STEP 6: MULTI-PLATFORM AUTO UPLOAD ---")
-        uploader = AutoUploader()
-        uploader.upload_all(
-            final_video_path,
-            pkg["video_title"],
-            pkg["short_caption"],
-            tags=["pencilsketch", "howtodraw", "art", "drawing", "shorts"]
-        )
+        # Step 6: Multi-Platform Auto Upload (Only when enabled)
+        if enable_upload:
+            print("\n--- STEP 6: MULTI-PLATFORM AUTO UPLOAD ---")
+            uploader = AutoUploader()
+            uploader.upload_all(
+                final_video_path,
+                pkg["video_title"],
+                pkg["short_caption"],
+                tags=["pencilsketch", "howtodraw", "art", "drawing", "shorts"]
+            )
+        else:
+            print("\n--- STEP 6: PREVIEW MODE (AUTO-UPLOAD DISABLED) ---")
+            print(f"[i] Safe Mode: Video saved locally for inspection at:")
+            print(f"    -> {final_video_path}")
+            print(f"[i] Upload is paused so you can review without needing to delete unwanted posts.")
 
         print("\n" + "=" * 60)
-        print(f"[SUCCESS] Pencil sketch video successfully created and published: {final_video_path}")
+        print(f"[SUCCESS] Pencil sketch video created: {final_video_path}")
         print("=" * 60 + "\n")
         return final_video_path
 

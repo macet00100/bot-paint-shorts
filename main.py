@@ -20,26 +20,28 @@ def main():
     parser.add_argument("--run-now", action="store_true", help="Select unique object and create 1 video immediately")
     parser.add_argument("--start-scheduler", action="store_true", help="Start the 24/7 background scheduler")
     parser.add_argument("--object", "--topic", type=str, dest="object", help="Manually specify an object to sketch (e.g. 'car', 'grapes')")
+    parser.add_argument("--upload", action="store_true", help="Enable live auto-upload to YouTube Shorts, Facebook Reels, TikTok (Default: Preview only)")
 
     args = parser.parse_args()
 
     if args.run_now:
         print("[*] Immediate pencil sketch video requested...")
-        run_pipeline(trigger_time="MANUAL_CLI")
+        run_pipeline(trigger_time="MANUAL_CLI", enable_upload=args.upload)
     elif args.start_scheduler:
         start_scheduler()
     elif args.object:
         print(f"[*] Custom object requested: '{args.object}'")
-        run_pipeline(trigger_time="MANUAL_OBJECT", target_object=args.object)
+        run_pipeline(trigger_time="MANUAL_OBJECT", target_object=args.object, enable_upload=args.upload)
     else:
         # Default behavior: show options or run 1 video
         print("\n=== PENCIL SKETCH AUTOMATED VIDEO BOT ===")
-        print("1. Run 1 video now:         python main.py --run-now")
-        print("2. Start 24/7 scheduler:    python main.py --start-scheduler")
-        print("3. Custom object:           python main.py --object 'airplane'")
+        print("1. Preview 1 video locally: python main.py --run-now")
+        print("2. Create & live upload:    python main.py --run-now --upload")
+        print("3. Custom object preview:   python main.py --object 'airplane'")
+        print("4. Start 24/7 scheduler:    python main.py --start-scheduler")
         print("==========================================\n")
-        print("[*] Running immediate unique object sketch...")
-        run_pipeline(trigger_time="DEFAULT_INIT")
+        print("[*] Running immediate unique object sketch in safe preview mode...")
+        run_pipeline(trigger_time="DEFAULT_INIT", enable_upload=args.upload)
 
 
 if __name__ == "__main__":
