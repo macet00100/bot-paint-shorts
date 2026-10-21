@@ -1,10 +1,13 @@
 """
 Kids Art Engine - Generates 3D Pixar Character Cutouts and Glowing Mystery Silhouettes.
-Uses free Pollinations AI (FLUX) + AI Salient Object Removal (rembg).
+Uses free official FLUX.1-schnell (via Hugging Face Gradio Client) + Pollinations AI + AI Background Removal (rembg).
 Works on ALL animals, dinosaurs, fruits, and vehicles (regardless of character color).
 100% FREE, Zero API Key required, Zero Watermarks.
 """
+import os
+import sys
 import json
+import shutil
 import urllib.request
 import urllib.parse
 from pathlib import Path
@@ -22,6 +25,16 @@ class KidsArtEngine:
     def __init__(self):
         # Use lightweight, lightning-fast u2netp (4.5MB, ~0.5s inference)
         self.rembg_session = rembg.new_session("u2netp")
+        self._flux_client = None
+
+    def _get_flux_client(self):
+        if self._flux_client is None:
+            try:
+                from gradio_client import Client
+                self._flux_client = Client("black-forest-labs/FLUX.1-schnell")
+            except Exception as e:
+                print(f"[!] Notice: Could not connect to Gradio FLUX Space: {e}")
+        return self._flux_client
 
     def _get_active_pollinations_model(self) -> str:
         """Fetches currently active free models from Pollinations, defaults to 'sana'."""
@@ -52,35 +65,60 @@ class KidsArtEngine:
                 self._generate_silhouette_from_cutout(cutout_path, silhouette_path)
                 return cutout_path, silhouette_path
 
-        print(f"[*] Generating 3D Pixar character art for '{topic_pkg['name']}' via Pollinations AI...")
+        print(f"[*] Generating 3D Pixar character art for '{topic_pkg['name']}'...")
         prompt = topic_pkg["image_prompt"].replace("on bright solid neon green screen background, chroma key", "on clean solid plain white background")
-        encoded_prompt = urllib.parse.quote(prompt)
 
         raw_download_path = TEMP_DIR / f"{topic_id}_raw.jpg"
         download_success = False
 
-        active_model = self._get_active_pollinations_model()
-        model_candidates = [active_model, "sana", "flux", "turbo"]
-        # Remove duplicates while preserving order
-        unique_candidates = list(dict.fromkeys(model_candidates))
+        # METHOD 1: High-Speed Free FLUX.1-schnell (via Gradio HF Space ~5s)
+        try:
+            client = self._get_flux_client()
+            if client:
+                print(f"[*] Requesting 3D art via free FLUX.1-schnell space...")
+                res = client.predict(
+                    prompt=prompt,
+                    seed=0,
+                    randomize_seed=True,
+                    width=768,
+                    height=768,
+                    num_inference_steps=4,
+                    api_name="/infer"
+                )
+                if res and isinstance(res, (tuple, list)) and len(res) > 0 and res[0]:
+                    temp_img_path = Path(res[0])
+                    if temp_img_path.exists():
+                        shutil.copyfile(str(temp_img_path), str(raw_download_path))
+                        download_success = True
+                        print(f"[+] Successfully generated 3D Pixar art via FLUX.1-schnell!")
+        except Exception as e:
+            print(f"[!] FLUX.1-schnell space notice: {e}. Trying Pollinations fallback...")
 
-        for model in unique_candidates:
-            url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?model={model}"
-            try:
-                print(f"[*] Requesting image with model '{model}'...")
-                req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-                with urllib.request.urlopen(req, timeout=40) as resp, open(raw_download_path, "wb") as f:
-                    f.write(resp.read())
-                if raw_download_path.stat().st_size > 5000:
-                    download_success = True
-                    print(f"[+] Downloaded raw image via '{model}' ({raw_download_path.stat().st_size / 1024:.1f} KB).")
-                    break
-            except Exception as e:
-                print(f"[!] Warning: model '{model}' failed: {e}. Trying next option...")
+        # METHOD 2: Pollinations AI Fallback
+        if not download_success:
+            encoded_prompt = urllib.parse.quote(prompt)
+            active_model = self._get_active_pollinations_model()
+            model_candidates = [active_model, "sana", "flux", "turbo"]
+            unique_candidates = list(dict.fromkeys(model_candidates))
+
+            for model in unique_candidates:
+                url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?model={model}"
+                try:
+                    print(f"[*] Requesting image with Pollinations '{model}'...")
+                    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+                    with urllib.request.urlopen(req, timeout=40) as resp, open(raw_download_path, "wb") as f:
+                        f.write(resp.read())
+                    if raw_download_path.stat().st_size > 5000:
+                        download_success = True
+                        print(f"[+] Downloaded raw image via '{model}' ({raw_download_path.stat().st_size / 1024:.1f} KB).")
+                        break
+                except Exception as e:
+                    print(f"[!] Warning: model '{model}' failed: {e}. Trying next option...")
 
         if not download_success:
             # Fallback to simple unparameterized prompt URL
             try:
+                encoded_prompt = urllib.parse.quote(prompt)
                 url = f"https://image.pollinations.ai/prompt/{encoded_prompt}"
                 print(f"[*] Fallback to base prompt URL...")
                 req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
@@ -94,7 +132,7 @@ class KidsArtEngine:
         if not download_success:
             raise RuntimeError(f"Could not generate art for '{topic_pkg['name']}'.")
 
-        print(f"[+] Downloaded raw image. Applying AI background removal (rembg u2netp)...")
+        print(f"[+] Applying AI background removal (rembg u2netp)...")
         self._process_image_with_rembg(raw_download_path, cutout_path, silhouette_path)
 
         # Cleanup raw download to keep disk 100% clean
@@ -106,8 +144,9 @@ class KidsArtEngine:
     def _process_image_with_rembg(self, raw_jpg_path: Path, cutout_png_path: Path, silhouette_png_path: Path):
         img = cv2.imread(str(raw_jpg_path))
         h, w = img.shape[:2]
-        # Crop bottom 45px to eliminate watermark
-        img = img[:h - 45, :]
+        # Crop bottom 45px to eliminate any watermark if present
+        if h > 100:
+            img = img[:h - 45, :]
 
         # AI Salient background removal using fast session
         rgba = rembg.remove(img, session=self.rembg_session)
@@ -132,5 +171,5 @@ class KidsArtEngine:
 if __name__ == "__main__":
     from kids_catalog import KIDS_TOPICS
     engine = KidsArtEngine()
-    cutout, sil = engine.get_character_assets(KIDS_TOPICS[1]) # baby_panda
+    cutout, sil = engine.get_character_assets(KIDS_TOPICS[0])
     print("Cutout:", cutout, "Silhouette:", sil)
