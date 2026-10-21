@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.pyo
+temp/*
+!temp/.gitkeep
+output/*
+!output/.gitkeep
+gemini_generated_video_*.mp4
+*.log
+.venv/
+.env
+client_secret.json
+youtube_token.json
