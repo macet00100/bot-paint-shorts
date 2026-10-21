@@ -11,3 +11,4 @@ gemini_generated_video_*.mp4
 .env
 client_secret.json
 youtube_token.json
+tao.mp4

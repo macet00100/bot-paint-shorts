@@ -37,7 +37,7 @@ class AIArtist:
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
         }
 
-        # Attempt download with retries
+        # Attempt download with retries (Pollinations has 45s cooldown on free IP)
         success = False
         for attempt in range(1, 4):
             try:
@@ -49,12 +49,15 @@ class AIArtist:
                         f.write(response.content)
                     success = True
                     break
+                elif response.status_code == 402:
+                    print(f"    [!] Pollinations IP cooldown (402), waiting 15s to retry...")
+                    time.sleep(15)
                 else:
                     print(f"    [!] Received HTTP {response.status_code}, retrying...")
-                    time.sleep(2)
+                    time.sleep(5)
             except Exception as e:
                 print(f"    [!] Error during image request: {e}")
-                time.sleep(2)
+                time.sleep(5)
 
         if not success:
             print("[!] Could not fetch from Pollinations, using existing reference or generating fallback art...")
@@ -75,14 +78,14 @@ class AIArtist:
         # Upscale to 2K (1080 x 1440 or custom target) with high-fidelity Lanczos
         upscaled = clean_img.resize((target_width, target_height), Image.Resampling.LANCZOS)
 
-        # Subtle contrast and sharpness enhancement for vibrant caricature comic look
+        # Crisp contrast and sharpness enhancement for graphite pencil art
         enhancer = ImageEnhance.Sharpness(upscaled)
-        sharpened = enhancer.enhance(1.25)
-        color_enhancer = ImageEnhance.Color(sharpened)
-        vibrant = color_enhancer.enhance(1.15)
+        sharpened = enhancer.enhance(1.3)
+        contrast_enhancer = ImageEnhance.Contrast(sharpened)
+        polished = contrast_enhancer.enhance(1.15)
 
-        vibrant.save(output_path, quality=95)
-        print(f"[+] 2K Caricature Image saved to: {output_path} ({target_width}x{target_height})")
+        polished.save(output_path, quality=95)
+        print(f"[+] 2K Sketch Image saved to: {output_path} ({target_width}x{target_height})")
         return str(output_path)
 
 
