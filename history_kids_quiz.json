@@ -18,5 +18,15 @@
       "CLUE 1: Black and white fluffy fur!",
       "CLUE 2: I love eating green bamboo!"
     ]
+  },
+  {
+    "topic_id": "hero_fire_truck",
+    "name": "Hero Fire Truck",
+    "category": "vehicles",
+    "completed_at": "2026-10-22 01:09:12",
+    "clues": [
+      "CLUE 1: Bright red paint and flashing siren!",
+      "CLUE 2: Long ladder and powerful water hose!"
+    ]
   }
 ]

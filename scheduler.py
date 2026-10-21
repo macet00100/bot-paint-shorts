@@ -22,11 +22,11 @@ from kids_video_engine import KidsVideoEngine
 from cleaner import StorageManager
 from auto_uploader import AutoUploader
 
-# Force UTF-8 on Windows
+# Force UTF-8 and instant line-buffering on Windows
 if sys.stdout and hasattr(sys.stdout, "reconfigure"):
-    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stdout.reconfigure(encoding="utf-8", line_buffering=True)
 if sys.stderr and hasattr(sys.stderr, "reconfigure"):
-    sys.stderr.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8", line_buffering=True)
 
 
 def run_pipeline(trigger_time="MANUAL", target_topic=None, enable_upload=False):
