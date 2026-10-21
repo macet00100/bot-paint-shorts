@@ -194,46 +194,55 @@ class AutoUploader:
                 page.goto(studio_url, timeout=60000)
                 time.sleep(5)
 
-                # Wait for attached file input (hidden by design in modern CSS)
+                # 1. Wait for attached file input (hidden by design in modern CSS)
                 print("[*] Waiting for upload file input...")
                 page.wait_for_selector("input[type='file']", state="attached", timeout=45000)
                 page.set_input_files("input[type='file']", str(video_path))
                 print("[+] Video file attached to TikTok Studio. Waiting for video processing...")
-                time.sleep(10)
+                time.sleep(12)
 
-                # Clear Joyride tutorials, guide overlays & modals
-                try:
-                    page.evaluate("""() => {
-                        const joyride = document.getElementById('react-joyride-portal');
-                        if (joyride) joyride.remove();
-                        const overlays = document.querySelectorAll('.react-joyride__overlay, .TUXModal-overlay');
-                        overlays.forEach(el => el.remove());
-                    }""")
-                    print("[+] Overlays & tutorials dismissed.")
-                except Exception as oe:
-                    print(f"[-] Could not clear overlays: {oe}")
+                # 2. Dismiss Joyride onboarding tour / modal
+                dismiss = page.locator('button:has-text("Đã hiểu"), button:has-text("Got it"), button[aria-label="Skip"], button[aria-label="Close"]')
+                if dismiss.count() > 0:
+                    try:
+                        dismiss.first.click()
+                        print("[+] Joyride onboarding tour dismissed.")
+                        time.sleep(2)
+                    except Exception:
+                        pass
 
-                # Caption
+                # 3. Fill Caption
                 caption_input = page.locator(".public-DraftEditor-content, div[contenteditable='true']")
                 if caption_input.count() > 0:
                     try:
-                        caption_input.first.click(force=True)
                         caption_input.first.fill(description)
                         print("[+] Video caption added.")
                     except Exception as ce:
                         print(f"[-] Could not fill caption: {ce}")
 
-                time.sleep(5)
-                # Click Post / Đăng using exact data-e2e selector or primary button with force=True
+                time.sleep(3)
+
+                # 4. Click Post button
                 post_btn = page.locator('button[data-e2e="post_video_button"], button.Button__root--type-primary:has-text("Đăng"), button.Button__root--type-primary:has-text("Post")')
                 if post_btn.count() > 0:
                     try:
-                        post_btn.first.click(force=True)
-                        print("[+] Clicked Post/Đăng button. Finalizing upload...")
-                        time.sleep(15)
+                        post_btn.first.scroll_into_view_if_needed()
+                        post_btn.first.click()
+                        print("[+] Clicked Post button. Monitoring confirmation dialog...")
                     except Exception as be:
                         print(f"[-] Error clicking post button: {be}")
 
+                # 5. Handle confirmation dialog if prompted (e.g. "Đăng ngay" / "Post now")
+                for _ in range(8):
+                    time.sleep(2)
+                    dialog_confirm = page.locator('button:has-text("Đăng ngay"), button:has-text("Post now"), button:has-text("Tiếp tục đăng")')
+                    if dialog_confirm.count() > 0:
+                        print("[+] Confirmed post dialog ('Đăng ngay')!")
+                        dialog_confirm.first.click()
+                        time.sleep(5)
+                        break
+
+                time.sleep(10)
                 browser.close()
                 print("[+] TikTok video uploaded via automated session!")
                 return {"platform": "TikTok", "status": "SUCCESS"}
