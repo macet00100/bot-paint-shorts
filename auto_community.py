@@ -243,7 +243,10 @@ class CommunityManager:
                     author = top_c.get("authorDisplayName", "Friend")
                     text = top_c.get("textDisplay", "")
 
-                    # Don't reply to yourself, and don't reply twice
+                    # Don't reply to yourself (channel owner), and don't reply twice
+                    author_channel_id = top_c.get('authorChannelId', {}).get('value', '')
+                    if author.lower() in ['paint draw', '@paintdraw00100']:
+                        continue
                     if cid in self.replies_history:
                         continue
                     if thread["snippet"].get("totalReplyCount", 0) > 0:
