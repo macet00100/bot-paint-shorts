@@ -182,27 +182,27 @@ class ObjectCurator:
             f"#pencilsketch #howtodraw #drawing #art #sketchbook #shorts"
         )
 
-        # English ~35-second voiceover commentary script (Relaxing art tutorial style)
+        # Engaging viral tutorial voiceover commentary script (~32-34s)
         script_hook = (
-            f"Can you sketch a realistic {object_name} using just a single pencil? "
-            f"Let's break it down step by step!"
+            f"Think sketching a realistic {object_name} is hard? "
+            f"Watch this simple 30-second pencil trick!"
         )
         script_step1 = (
-            f"First, start with light, gentle strokes to define the overall proportions and general shape. "
-            f"Keep your initial construction lines loose and clean."
+            f"Step one: Start with a light, simple outline using a 2H pencil. "
+            f"Keep your wrist loose and build the overall shape."
         )
         script_step2 = (
-            f"Next, switch to a darker graphite pencil to outline the main contours, "
-            f"refining the characteristic curves and edges of the {object_name}."
+            f"Step two: Trace over the contours with darker graphite to make it pop, "
+            f"and carve out the signature details."
         )
         script_step3 = (
-            f"Now comes the satisfying part: layering cross-hatch shading to build depth, "
-            f"shadows, and realistic three-dimensional volume."
+            f"Step three: Time for shading! Add smooth diagonal cross-hatching "
+            f"along the curved edge for instant three-dimensional depth and shadow."
         )
         script_cta = (
-            f"And there you have it: a clean, realistic pencil sketch! "
-            f"What object should I sketch next? Leave a comment below, "
-            f"and don't forget to hit like and subscribe for daily pencil art tutorials!"
+            f"Boom! Look at that result! "
+            f"What object should I sketch next? Drop your idea in the comments, "
+            f"and subscribe for daily drawing tutorials!"
         )
 
         full_script = f"{script_hook} {script_step1} {script_step2} {script_step3} {script_cta}"

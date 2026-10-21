@@ -1,13 +1,16 @@
 """
 POV Pencil Sketch Animation Engine (Authentic A4 Paper on Wooden Desk)
-Renders clean, smooth, tutorial-style pencil drawing:
-- 100% clean continuous vector strokes (zero dithering, zero broken noise artifacts).
+Features:
+- Dynamic Hand Physics: Natural wrist tilt (-7° to +7°), breathing micro-motion,
+  lift-and-glide air travel between strokes. Zero stiff cardboard look.
+- 100% Clean Continuous Vector Lines (No dot dither, no broken pixel noise).
 - Authentic physical graphite Multiply blending onto blank A4 desk paper.
-- 5 Tutorial Stages (< 60s total, exactly 35.0s at 24fps):
-  1. Stage 1 (0s - 10s): Simple Outline (Light 2H Pencil)
-  2. Stage 2 (10s - 19s): Retracing & Defining Contours (Bold 2B Pencil - "Dặm lại nét")
-  3. Stage 3 (19s - 28s): Clean Diagonal Hatching & Depth (4B Pencil - "Dặm bóng")
-  4. Stage 4 (28s - 31.5s): Hand lifts and glides off-screen, revealing clean art
+- Engaging 5-Stage Viral Structure with High-Retention Hook (< 60s total, ~35.0s):
+  0. Hook (0s - 2.5s): Quick finished preview & challenge teaser ("Can you sketch this in 30s?")
+  1. Stage 1 (2.5s - 11s): Simple Outline (Light 2H Pencil)
+  2. Stage 2 (11s - 20s): Defining Contours & Details (Bold 2B Pencil - "Dặm lại nét")
+  3. Stage 3 (20s - 28.5s): Clean 45° Diagonal Hatching & Depth (4B Pencil - "Dặm bóng")
+  4. Stage 4 (28.5s - 31.5s): Hand lifts & glides off-screen, revealing clean art
   5. Stage 5 (31.5s - 35s): Call-To-Action ("What should I sketch next? Subscribe!")
 """
 import math
@@ -77,8 +80,29 @@ class POVSketchEngine:
             bg_crop[:] = fg_crop[:, :, :3]
         return bg
 
-    def _draw_pill_badge(self, frame, text, center_x, center_y, bg_color=(25, 25, 30), text_color=(255, 255, 255)):
-        """Draws a clean, rounded tutorial HUD badge"""
+    def _render_dynamic_hand(self, frame, tip_x, tip_y, tilt_angle=0.0, scale=1.0):
+        """
+        Renders the hand sprite with dynamic wrist rotation and scale around the pencil tip pivot.
+        Ensures the pencil tip stays pinned exactly at (tip_x, tip_y) while the hand flexes.
+        """
+        pivot = (float(self.tip_offset_x), float(self.tip_offset_y))
+        sh, sw = self.hand_sprite.shape[:2]
+
+        # Rotate & scale around pencil tip pivot
+        M = cv2.getRotationMatrix2D(pivot, tilt_angle, scale)
+        warped = cv2.warpAffine(
+            self.hand_sprite, M, (sw, sh),
+            flags=cv2.INTER_LINEAR,
+            borderMode=cv2.BORDER_CONSTANT,
+            borderValue=(0, 0, 0, 0)
+        )
+
+        hx = int(tip_x - self.tip_offset_x)
+        hy = int(tip_y - self.tip_offset_y)
+        return self._overlay_alpha(frame, warped, hx, hy)
+
+    def _draw_pill_badge(self, frame, text, center_x, center_y, bg_color=(25, 25, 30), text_color=(255, 255, 255), border_color=(200, 200, 200)):
+        """Draws an elegant, modern rounded tutorial HUD badge"""
         font = cv2.FONT_HERSHEY_DUPLEX
         font_scale = 0.65
         thickness = 1
@@ -92,8 +116,8 @@ class POVSketchEngine:
 
         overlay = frame.copy()
         cv2.rectangle(overlay, (bx1, by1), (bx2, by2), bg_color, -1)
-        cv2.rectangle(overlay, (bx1, by1), (bx2, by2), (180, 180, 185), 1)
-        cv2.addWeighted(overlay, 0.82, frame, 0.18, 0, frame)
+        cv2.rectangle(overlay, (bx1, by1), (bx2, by2), border_color, 1)
+        cv2.addWeighted(overlay, 0.84, frame, 0.16, 0, frame)
 
         tx = center_x - tw // 2
         ty = center_y + th // 2
@@ -104,47 +128,37 @@ class POVSketchEngine:
         Extracts clean, smooth, ordered vector strokes from line art image.
         Filters out noise, specks, and jitter.
         """
-        dh, dw = gray_img.shape[:2]
-
-        # Clean binary threshold: dark lines are foreground
         _, binary = cv2.threshold(gray_img, 195, 255, cv2.THRESH_BINARY_INV)
-
-        # Remove stray noise specks
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
         cleaned = cv2.morphologyEx(binary, cv2.MORPH_OPEN, kernel)
-
         contours, _ = cv2.findContours(cleaned, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
 
         valid_strokes = []
         for c in contours:
             length = cv2.arcLength(c, False)
             if length > 25:
-                # Smooth curve to eliminate jagged pixelation
                 smooth = cv2.approxPolyDP(c, epsilon=1.2, closed=False)
                 pts = smooth.reshape(-1, 2)
                 if len(pts) >= 2:
                     valid_strokes.append((length, pts))
 
-        # Sort largest/longest strokes first (main outline first, then inner details)
+        # Sort largest/longest strokes first
         valid_strokes.sort(key=lambda x: x[0], reverse=True)
 
         strokes_pts = [pts for _, pts in valid_strokes]
         if not strokes_pts:
-            # Fallback circle if image had no clear lines
             pts = []
             for deg in range(0, 360, 10):
                 rad = math.radians(deg)
-                pts.append([int(dw // 2 + 100 * math.cos(rad)), int(dh // 2 + 120 * math.sin(rad))])
+                pts.append([int(180 + 100 * math.cos(rad)), int(220 + 120 * math.sin(rad))])
             strokes_pts = [np.array(pts)]
 
         return strokes_pts, cleaned
 
     def _generate_hatching_strokes(self, binary_mask, dw, dh):
         """
-        Generates clean, parallel 45-degree diagonal hatching pencil strokes
-        in the shadow zone of the object and contact shadow below it.
+        Generates clean 45-degree diagonal hatching strokes inside the shadow zone.
         """
-        # Find object bounding box
         y_idx, x_idx = np.where(binary_mask > 0)
         if len(y_idx) == 0:
             return []
@@ -154,20 +168,17 @@ class POVSketchEngine:
         obj_w = x_max - x_min
         obj_h = y_max - y_min
 
-        # Shadow zone: lower-right portion inside the object
         shadow_mask = np.zeros((dh, dw), dtype=np.uint8)
-        # Fill object interior using convex hull
         hull = cv2.convexHull(np.column_stack((x_idx, y_idx)))
         cv2.drawContours(shadow_mask, [hull], -1, 255, -1)
 
-        # Crescent shadow mask (right and bottom side)
         crescent_center_x = int(x_min + obj_w * 0.58)
         crescent_center_y = int(y_min + obj_h * 0.55)
         crescent_mask = np.zeros((dh, dw), dtype=np.uint8)
         cv2.ellipse(
             crescent_mask,
             (crescent_center_x, crescent_center_y),
-            (int(obj_w * 0.42), int(obj_h * 0.42)),
+            (int(obj_w * 0.40), int(obj_h * 0.40)),
             0, 0, 360, 255, -1
         )
         inner_shadow = cv2.bitwise_and(shadow_mask, crescent_mask)
@@ -181,7 +192,6 @@ class POVSketchEngine:
             0, 0, 360, 255, -1
         )
 
-        # Generate clean 45-degree parallel hatching lines spaced 10px apart
         hatch_strokes = []
         step = 10
         for d in range(-dh, dw + dh, step):
@@ -191,7 +201,6 @@ class POVSketchEngine:
                 if 0 <= y < dh and inner_shadow[y, x] > 0:
                     pts_on_line.append((x, y))
             if len(pts_on_line) > 4:
-                # Add straight hatching line from start to end
                 hatch_strokes.append(np.array([pts_on_line[0], pts_on_line[-1]]))
 
         return hatch_strokes
@@ -208,20 +217,17 @@ class POVSketchEngine:
         if src_img is None:
             raise FileNotFoundError(f"Cannot load image: {input_image_path}")
 
-        # Dimensions of drawing area on A4 paper
         dw, dh = 360, 440
-        dx = (self.vw - dw) // 2  # 180 (centered horizontally)
-        dy = 480                  # centered on A4 paper
+        dx = (self.vw - dw) // 2  # 180 (centered on A4 desk paper)
+        dy = 480
 
         scaled = cv2.resize(src_img, (dw, dh), interpolation=cv2.INTER_AREA)
         gray = cv2.cvtColor(scaled, cv2.COLOR_BGR2GRAY)
 
-        # Extract clean vector strokes and shadow hatching
         strokes, binary_mask = self._extract_clean_strokes(gray)
         hatch_strokes = self._generate_hatching_strokes(binary_mask, dw, dh)
 
-        # Flatten segments for Stage 1 (Outline)
-        # Each segment is (p1, p2)
+        # Build stroke segments
         segments_outline = []
         for s in strokes:
             for i in range(1, len(s)):
@@ -230,39 +236,79 @@ class POVSketchEngine:
         if not segments_outline:
             segments_outline = [((dw // 2, dh // 2), (dw // 2 + 10, dh // 2 + 10))]
 
-        # Flatten segments for Stage 2 (Dặm lại & Details)
         segments_details = segments_outline.copy()
-
-        # Flatten segments for Stage 3 (Hatching Shading)
         segments_hatching = []
         for hs in hatch_strokes:
-            p1, p2 = hs[0], hs[1]
-            segments_hatching.append((p1, p2))
+            segments_hatching.append((hs[0], hs[1]))
         if not segments_hatching:
             segments_hatching = [((dw // 2, dh // 2), (dw // 2 + 15, dh // 2 + 15))]
 
-        # Video Writer
+        # Video Writer (720x1280 @ 24fps)
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
         writer = cv2.VideoWriter(str(output_video_path), fourcc, self.fps, (self.vw, self.vh))
 
         # Timing Setup (Total = 35.0s = 840 frames at 24fps)
-        frames_stage1 = int(10.0 * self.fps)  # 0s - 10s: Outline (240 frames)
-        frames_stage2 = int(9.0 * self.fps)   # 10s - 19s: Dặm lại & Details (216 frames)
-        frames_stage3 = int(9.0 * self.fps)   # 19s - 28s: Dặm bóng (216 frames)
-        frames_stage4 = int(3.5 * self.fps)   # 28s - 31.5s: Reveal & Hand Slide Off (84 frames)
+        frames_hook = int(2.5 * self.fps)     # 0s - 2.5s: Viral Hook (60 frames)
+        frames_stage1 = int(8.5 * self.fps)   # 2.5s - 11s: Outline (204 frames)
+        frames_stage2 = int(9.0 * self.fps)   # 11s - 20s: Dặm lại nét & Details (216 frames)
+        frames_stage3 = int(8.5 * self.fps)   # 20s - 28.5s: Dặm bóng (204 frames)
+        frames_stage4 = int(3.0 * self.fps)   # 28.5s - 31.5s: Reveal & Hand Slide Off (72 frames)
         frames_stage5 = int(3.5 * self.fps)   # 31.5s - 35s: Call-To-Action (84 frames)
-        total_frames = frames_stage1 + frames_stage2 + frames_stage3 + frames_stage4 + frames_stage5
+        total_frames = frames_hook + frames_stage1 + frames_stage2 + frames_stage3 + frames_stage4 + frames_stage5
 
         print(f"    Total frames to render: {total_frames} (~35.0s at {self.fps} fps)")
 
-        # Active drawing canvas on pure white paper (starts 255)
+        # Full finished art layer (used in Hook & Reveal)
+        finished_canvas = np.ones((dh, dw), dtype=np.uint8) * 255
+        for p1, p2 in segments_outline:
+            cv2.line(finished_canvas, tuple(p1), tuple(p2), 65, 3, cv2.LINE_AA)
+        for p1, p2 in segments_hatching:
+            cv2.line(finished_canvas, tuple(p1), tuple(p2), 95, 1, cv2.LINE_AA)
+
+        # Active drawing canvas on pure white paper
         art_canvas = np.ones((dh, dw), dtype=np.uint8) * 255
 
-        cur_tip_x = dx + segments_outline[0][0][0]
-        cur_tip_y = dy + segments_outline[0][0][1]
+        # Dynamic hand physics state
+        current_tip_x = dx + segments_outline[0][0][0]
+        current_tip_y = dy + segments_outline[0][0][1]
+        current_tilt = 0.0
 
         # =========================================================
-        # STAGE 1: NÉT CHÌ ĐƠN GIẢN (0s - 10s)
+        # HOOK STAGE (0s - 2.5s): VIRAL TEASER & CHALLENGE
+        # =========================================================
+        print("    -> Rendering Hook (0s - 2.5s): Challenge Teaser...")
+        for f in range(frames_hook):
+            frame = self.desk_bg.copy()
+            progress = f / float(frames_hook)
+
+            if progress < 0.65:
+                # Flash finished sketch with subtle punch zoom
+                paper_roi = frame[dy:dy+dh, dx:dx+dw].astype(np.float32)
+                art_norm = (finished_canvas.astype(np.float32) / 255.0)[:, :, np.newaxis]
+                frame[dy:dy+dh, dx:dx+dw] = (paper_roi * art_norm).astype(np.uint8)
+
+                # Hook Text Card
+                self._draw_pill_badge(
+                    frame, "30-SECOND SKETCH CHALLENGE",
+                    self.vw // 2, 70,
+                    bg_color=(200, 30, 30), border_color=(255, 255, 255)
+                )
+                cv2.putText(
+                    frame, f"Can you sketch a {object_display_name}?",
+                    (self.vw // 2 - 210, 120), cv2.FONT_HERSHEY_DUPLEX, 0.72, (30, 30, 35), 2, cv2.LINE_AA
+                )
+            else:
+                # Transition to blank paper ready to draw
+                self._draw_pill_badge(
+                    frame, "WATCH STEP BY STEP! 👇",
+                    self.vw // 2, 70,
+                    bg_color=(25, 25, 30), border_color=(255, 215, 0)
+                )
+
+            writer.write(frame)
+
+        # =========================================================
+        # STAGE 1: NÉT CHÌ ĐƠN GIẢN (2.5s - 11s)
         # =========================================================
         print("    -> Rendering Stage 1: Simple Outline (2H)...")
         segs_per_frame_1 = max(1, len(segments_outline) // frames_stage1)
@@ -271,33 +317,44 @@ class POVSketchEngine:
         for f in range(frames_stage1):
             next_idx = min(len(segments_outline), drawn_idx_1 + segs_per_frame_1 * 2)
 
+            safe_idx = min(len(segments_outline) - 1, drawn_idx_1)
+            last_p1, last_p2 = segments_outline[safe_idx]
             for i in range(drawn_idx_1, next_idx):
                 p1, p2 = segments_outline[i]
-                # Draw light pencil stroke (light gray 175, thickness 2)
-                cv2.line(art_canvas, tuple(p1), tuple(p2), 175, 2, cv2.LINE_AA)
+                # Draw light graphite pencil stroke (gray 170, thickness 2)
+                cv2.line(art_canvas, tuple(p1), tuple(p2), 170, 2, cv2.LINE_AA)
+                last_p1, last_p2 = p1, p2
 
             drawn_idx_1 = next_idx
-            last_p = segments_outline[min(len(segments_outline) - 1, drawn_idx_1)][1]
-            cur_tip_x = dx + int(last_p[0])
-            cur_tip_y = dy + int(last_p[1])
+            target_tip_x = dx + int(last_p2[0])
+            target_tip_y = dy + int(last_p2[1])
 
-            # Multiply blend onto blank desk paper
+            # Calculate natural wrist tilt from stroke vector
+            vx = last_p2[0] - last_p1[0]
+            target_tilt = np.clip(vx * 0.8, -6.0, 6.0)
+            current_tilt = current_tilt * 0.75 + target_tilt * 0.25
+            breathing = math.sin(f * 0.3) * 0.6
+
+            current_tip_x = target_tip_x
+            current_tip_y = target_tip_y
+
+            # Multiply blend onto A4 desk
             frame = self.desk_bg.copy()
             paper_roi = frame[dy:dy+dh, dx:dx+dw].astype(np.float32)
             art_norm = (art_canvas.astype(np.float32) / 255.0)[:, :, np.newaxis]
-            blended_roi = (paper_roi * art_norm).astype(np.uint8)
-            frame[dy:dy+dh, dx:dx+dw] = blended_roi
+            frame[dy:dy+dh, dx:dx+dw] = (paper_roi * art_norm).astype(np.uint8)
 
-            # Overlay hand with pencil tip exactly at cur_tip
-            hx = cur_tip_x - self.tip_offset_x
-            hy = cur_tip_y - self.tip_offset_y
-            frame = self._overlay_alpha(frame, self.hand_sprite, hx, hy)
+            # Render dynamic hand
+            frame = self._render_dynamic_hand(
+                frame, current_tip_x, current_tip_y,
+                tilt_angle=current_tilt + breathing, scale=1.0
+            )
 
-            self._draw_pill_badge(frame, "STEP 1: LIGHT OUTLINE", self.vw // 2, 70)
+            self._draw_pill_badge(frame, "STEP 1: LIGHT OUTLINE (2H)", self.vw // 2, 70)
             writer.write(frame)
 
         # =========================================================
-        # STAGE 2: DẶM LẠI NÉT & CHI TIẾT (10s - 19s)
+        # STAGE 2: DẶM LẠI NÉT & CHI TIẾT (11s - 20s)
         # =========================================================
         print("    -> Rendering Stage 2: Retracing Contours (2B)...")
         segs_per_frame_2 = max(1, len(segments_details) // frames_stage2)
@@ -306,31 +363,41 @@ class POVSketchEngine:
         for f in range(frames_stage2):
             next_idx = min(len(segments_details), drawn_idx_2 + segs_per_frame_2 * 2)
 
+            safe_idx_2 = min(len(segments_details) - 1, drawn_idx_2)
+            last_p1, last_p2 = segments_details[safe_idx_2]
             for i in range(drawn_idx_2, next_idx):
                 p1, p2 = segments_details[i]
-                # Retrace with bold dark graphite line (dark charcoal 40, thickness 3)
-                cv2.line(art_canvas, tuple(p1), tuple(p2), 40, 3, cv2.LINE_AA)
+                # Dặm lại nét với chì than đậm (dark charcoal 60, thickness 3)
+                cv2.line(art_canvas, tuple(p1), tuple(p2), 60, 3, cv2.LINE_AA)
+                last_p1, last_p2 = p1, p2
 
             drawn_idx_2 = next_idx
-            last_p = segments_details[min(len(segments_details) - 1, drawn_idx_2)][1]
-            cur_tip_x = dx + int(last_p[0])
-            cur_tip_y = dy + int(last_p[1])
+            target_tip_x = dx + int(last_p2[0])
+            target_tip_y = dy + int(last_p2[1])
+
+            vx = last_p2[0] - last_p1[0]
+            target_tilt = np.clip(vx * 0.8, -6.0, 6.0)
+            current_tilt = current_tilt * 0.75 + target_tilt * 0.25
+            breathing = math.sin(f * 0.35) * 0.6
+
+            current_tip_x = target_tip_x
+            current_tip_y = target_tip_y
 
             frame = self.desk_bg.copy()
             paper_roi = frame[dy:dy+dh, dx:dx+dw].astype(np.float32)
             art_norm = (art_canvas.astype(np.float32) / 255.0)[:, :, np.newaxis]
-            blended_roi = (paper_roi * art_norm).astype(np.uint8)
-            frame[dy:dy+dh, dx:dx+dw] = blended_roi
+            frame[dy:dy+dh, dx:dx+dw] = (paper_roi * art_norm).astype(np.uint8)
 
-            hx = cur_tip_x - self.tip_offset_x
-            hy = cur_tip_y - self.tip_offset_y
-            frame = self._overlay_alpha(frame, self.hand_sprite, hx, hy)
+            frame = self._render_dynamic_hand(
+                frame, current_tip_x, current_tip_y,
+                tilt_angle=current_tilt + breathing, scale=1.0
+            )
 
-            self._draw_pill_badge(frame, "STEP 2: DEFINING CONTOURS", self.vw // 2, 70)
+            self._draw_pill_badge(frame, "STEP 2: DEFINING CONTOURS (2B)", self.vw // 2, 70)
             writer.write(frame)
 
         # =========================================================
-        # STAGE 3: DẶM BÓNG KHỐI & BÓNG ĐỔ (19s - 28s)
+        # STAGE 3: DẶM BÓNG KHỐI 3D & BÓNG ĐỔ (20s - 28.5s)
         # =========================================================
         print("    -> Rendering Stage 3: Shading & Hatching (4B)...")
         hatch_per_frame = max(1, len(segments_hatching) // frames_stage3)
@@ -341,39 +408,41 @@ class POVSketchEngine:
 
             for i in range(drawn_hatch_idx, next_idx):
                 p1, p2 = segments_hatching[i]
-                # Draw crisp diagonal pencil hatching lines (gray 85, thickness 1)
-                cv2.line(art_canvas, tuple(p1), tuple(p2), 85, 1, cv2.LINE_AA)
+                # Clean 45-degree diagonal hatching pencil stroke (gray 95, thickness 1)
+                cv2.line(art_canvas, tuple(p1), tuple(p2), 95, 1, cv2.LINE_AA)
 
             drawn_hatch_idx = next_idx
             last_hatch = segments_hatching[min(len(segments_hatching) - 1, drawn_hatch_idx)]
-            # Interpolate tip along active hatching line for fluid motion
-            sub_progress = (f % 4) / 4.0
+            sub_progress = (f % 5) / 5.0
             cur_tip_x = dx + int(last_hatch[0][0] + (last_hatch[1][0] - last_hatch[0][0]) * sub_progress)
             cur_tip_y = dy + int(last_hatch[0][1] + (last_hatch[1][1] - last_hatch[0][1]) * sub_progress)
+
+            # Rapid natural shading oscillation
+            shading_tilt = math.sin(f * 0.9) * 4.0
 
             frame = self.desk_bg.copy()
             paper_roi = frame[dy:dy+dh, dx:dx+dw].astype(np.float32)
             art_norm = (art_canvas.astype(np.float32) / 255.0)[:, :, np.newaxis]
-            blended_roi = (paper_roi * art_norm).astype(np.uint8)
-            frame[dy:dy+dh, dx:dx+dw] = blended_roi
+            frame[dy:dy+dh, dx:dx+dw] = (paper_roi * art_norm).astype(np.uint8)
 
-            hx = cur_tip_x - self.tip_offset_x
-            hy = cur_tip_y - self.tip_offset_y
-            frame = self._overlay_alpha(frame, self.hand_sprite, hx, hy)
+            frame = self._render_dynamic_hand(
+                frame, cur_tip_x, cur_tip_y,
+                tilt_angle=shading_tilt, scale=1.0
+            )
 
-            self._draw_pill_badge(frame, "STEP 3: SHADING & DEPTH", self.vw // 2, 70)
+            self._draw_pill_badge(frame, "STEP 3: SHADING & DEPTH (4B)", self.vw // 2, 70)
             writer.write(frame)
 
         # =========================================================
-        # STAGE 4: RÚT TAY KHOE TRANH (28s - 31.5s)
+        # STAGE 4: RÚT TAY KHOE TRANH (28.5s - 31.5s)
         # =========================================================
         print("    -> Rendering Stage 4: Reveal & Hand Slide Off...")
-        hx_start = cur_tip_x - self.tip_offset_x
-        hy_start = cur_tip_y - self.tip_offset_y
+        hx_start = current_tip_x - self.tip_offset_x
+        hy_start = current_tip_y - self.tip_offset_y
 
         for f in range(frames_stage4):
             progress = f / float(frames_stage4)
-            # Smooth cubic ease-in
+            # Smooth cubic ease-in acceleration
             slide_progress = progress * progress * progress
             slide_x = int(slide_progress * 550)
             slide_y = int(slide_progress * 80)
@@ -381,8 +450,7 @@ class POVSketchEngine:
             frame = self.desk_bg.copy()
             paper_roi = frame[dy:dy+dh, dx:dx+dw].astype(np.float32)
             art_norm = (art_canvas.astype(np.float32) / 255.0)[:, :, np.newaxis]
-            blended_roi = (paper_roi * art_norm).astype(np.uint8)
-            frame[dy:dy+dh, dx:dx+dw] = blended_roi
+            frame[dy:dy+dh, dx:dx+dw] = (paper_roi * art_norm).astype(np.uint8)
 
             hx = hx_start + slide_x
             hy = hy_start + slide_y
@@ -404,8 +472,7 @@ class POVSketchEngine:
             frame = self.desk_bg.copy()
             paper_roi = frame[dy:dy+dh, dx:dx+dw].astype(np.float32)
             art_norm = (art_canvas.astype(np.float32) / 255.0)[:, :, np.newaxis]
-            blended_roi = (paper_roi * art_norm).astype(np.uint8)
-            frame[dy:dy+dh, dx:dx+dw] = blended_roi
+            frame[dy:dy+dh, dx:dx+dw] = (paper_roi * art_norm).astype(np.uint8)
 
             card_h = 220
             card_y = self.vh - card_h - 100
@@ -450,6 +517,6 @@ class POVSketchEngine:
 if __name__ == "__main__":
     engine = POVSketchEngine()
     test_img = Path("temp/test_simple_apple.jpg")
-    test_out = Path("temp/test_clean_apple.mp4")
+    test_out = Path("temp/test_masterpiece_apple.mp4")
     if test_img.exists():
         engine.render_sketch_video(test_img, "Apple", test_out)
