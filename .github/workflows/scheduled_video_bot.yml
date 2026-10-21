@@ -31,7 +31,7 @@ jobs:
       - name: Install System Dependencies (FFmpeg, OpenCV & Kids Fonts)
         run: |
           sudo apt-get update
-          sudo apt-get install -y ffmpeg libsm6 libxext6 libgl1-mesa-glx fonts-comic-neue fonts-dejavu-core
+          sudo apt-get install -y ffmpeg libsm6 libxext6 libgl1 fonts-comic-neue fonts-dejavu-core
 
       - name: Install Python Dependencies
         run: |
