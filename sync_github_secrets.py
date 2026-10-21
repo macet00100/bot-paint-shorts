@@ -106,7 +106,7 @@ if env_file.exists():
                 k, v = line.split("=", 1)
                 k = k.strip()
                 v = v.strip()
-                if k in ["FB_PAGE_ID", "FB_ACCESS_TOKEN", "TIKTOK_SESSION_COOKIE", "HF_TOKEN"]:
+                if k in ["FB_PAGE_ID", "FB_ACCESS_TOKEN", "TIKTOK_SESSION_COOKIE", "HF_TOKEN", "GEMINI_API_KEY"]:
                     secrets_to_upload[k] = v
 
 print(f"\n[*] Uploading {len(secrets_to_upload)} secrets directly to GitHub Actions Secrets...")

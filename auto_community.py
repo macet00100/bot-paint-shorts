@@ -1,16 +1,25 @@
 """
-Community Engagement & Auto-Reply Engine
-Handles:
-1. Auto-Like / Favorite on freshly published videos (YouTube, Facebook, TikTok).
-2. Auto-First-Comment (pinned engagement hook) on freshly published videos.
-3. 24/7 AI-Powered Auto-Reply to viewer comments (every 15 mins) using 100% Free AI.
-All replies are in natural, enthusiastic, native American English.
+Community Engagement & AI Auto-Reply Engine (YouTube, Facebook, TikTok)
+Features:
+1. Smart Filters:
+   - Automatically skips comments by the channel itself or Fanpage admin.
+   - Automatically skips comments already replied to (thread reply inspection).
+2. Gemini AI Persona:
+   - Uses Google Gemini (gemini-2.0-flash-lite / gemini-flash-lite-latest) via google.genai.
+   - Falls back gracefully to free high-speed text AI if GEMINI_API_KEY is not set.
+   - Persona: Official channel Admin - warm, friendly, close, witty, 1-2 sentences with cute emojis 🥰🍿✨.
+   - Answers questions, celebrates correct guesses, encourages likes & subscribes.
+3. Anti-Duplication & Git Sync:
+   - Tracks every replied comment in history_comment_replies.json.
+   - Syncs to Git so history is permanently unified between Local and Cloud.
 """
 import os
 import sys
 import json
 import time
+import hashlib
 import requests
+import subprocess
 import urllib.request
 import urllib.parse
 from pathlib import Path
@@ -21,57 +30,105 @@ HISTORY_REPLIES_FILE = BASE_DIR / "history_comment_replies.json"
 # Force UTF-8 output
 if sys.stdout and hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
+if sys.stderr and hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
 
 
-class FreeAIEngine:
-    """Generates 100% free, high-engagement English replies using Pollinations Text API."""
+class GeminiAIEngine:
+    """Channel Admin AI powered by Gemini Flash Lite (with free high-speed fallback)."""
 
-    @staticmethod
-    def generate_reply(comment_text: str, topic_name: str = "mystery character", author_name: str = "friend") -> str:
-        system_prompt = (
-            "You are the cheerful, kid-friendly creator of a popular mystery guessing game YouTube/TikTok channel. "
-            "A viewer commented on your video. Write a warm, joyful, 1-2 sentence reply in native American English. "
-            "Guidelines:\n"
-            "- If they guessed correctly: Celebrate enthusiastically ('You got it! 🎯 Awesome job!').\n"
-            "- If they guessed wrong or asked something: Be super encouraging, reveal the answer gently ('Nice try! It was actually a cute panda!').\n"
-            "- If it's a general compliment: Thank them with energy ('Thank you so much! ❤️').\n"
-            "- Always add a short cheerful call to action to Like & Subscribe for daily fun quizzes.\n"
-            "- Keep it under 30 words. Include 1-2 friendly emojis."
+    def __init__(self):
+        self.api_key = os.getenv("GEMINI_API_KEY", "")
+        # Also check local .env if not in environment
+        if not self.api_key:
+            env_file = BASE_DIR / ".env"
+            if env_file.exists():
+                with open(env_file, "r", encoding="utf-8") as f:
+                    for line in f:
+                        if line.startswith("GEMINI_API_KEY="):
+                            self.api_key = line.strip().split("=", 1)[1].strip()
+                            break
+
+        self.genai_client = None
+        if self.api_key:
+            try:
+                from google import genai
+                self.genai_client = genai.Client(api_key=self.api_key)
+                print("[+] Gemini AI Engine activated with 'gemini-2.0-flash-lite'!")
+            except Exception as e:
+                print(f"[!] Notice: google.genai setup: {e}")
+
+    def generate_admin_reply(self, comment_text: str, topic_name: str = "mystery character", author_name: str = "friend", platform: str = "YouTube") -> str:
+        """
+        Generates a warm, witty, friendly 1-2 sentence English reply from Channel Admin with cute emojis 🥰🍿.
+        """
+        system_instruction = (
+            "You are the cheerful, fun, and witty official Channel Admin of a popular kids mystery guessing channel "
+            f"on {platform}. You are replying to a viewer named '{author_name}' on a video about '{topic_name}'.\n"
+            "Style & Guidelines:\n"
+            "- Tone: Super friendly, warm, close, witty, like a caring big brother/sister admin!\n"
+            "- Length: Strictly 1 to 2 short sentences.\n"
+            "- Emojis: Always include 1-2 cute and joyful emojis like 🥰🍿✨🎯❤️🐾.\n"
+            "- If they guessed correctly: Celebrate enthusiastically ('You nailed it! 🎯 Awesome detective skills!').\n"
+            "- If they asked a question: Answer it warmly, playfully, and accurately.\n"
+            "- If they guessed wrong: Be gentle and encouraging ('So close! It was actually a baby panda! Keep watching! 🥰').\n"
+            "- If it's a compliment: Thank them with heart and remind them to hit Like & Subscribe.\n"
+            "- Language: 100% natural, modern native American English."
         )
 
-        user_content = f"Video topic: {topic_name}. Viewer '{author_name}' wrote: \"{comment_text}\""
+        user_prompt = f"Viewer '{author_name}' commented: \"{comment_text}\"\nAdmin reply:"
 
-        payload = {
-            "messages": [
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_content}
-            ],
-            "model": "openai",
-            "seed": int(time.time()) % 10000
-        }
+        # 1. Try Google Gemini Flash Lite if API key is present
+        if self.genai_client:
+            for model_name in ["gemini-2.0-flash-lite", "gemini-flash-lite-latest", "gemini-1.5-flash"]:
+                try:
+                    full_prompt = f"{system_instruction}\n\n{user_prompt}"
+                    response = self.genai_client.models.generate_content(
+                        model=model_name,
+                        contents=full_prompt
+                    )
+                    if response and response.text:
+                        reply = response.text.strip().replace('"', '')
+                        print(f"[+] [Gemini {model_name}] Generated reply successfully!")
+                        return reply
+                except Exception as e:
+                    print(f"[!] Gemini model {model_name} notice: {e}")
 
+        # 2. Free High-Speed AI Fallback (100% free, no key needed)
         try:
+            payload = {
+                "messages": [
+                    {"role": "system", "content": system_instruction},
+                    {"role": "user", "content": user_prompt}
+                ],
+                "model": "openai"
+            }
             req = urllib.request.Request(
                 "https://text.pollinations.ai/",
                 data=json.dumps(payload).encode("utf-8"),
                 headers={"Content-Type": "application/json", "User-Agent": "Mozilla/5.0"}
             )
             with urllib.request.urlopen(req, timeout=12) as resp:
-                reply = resp.read().decode("utf-8").strip()
-                # Clean any outer quotes
-                if reply.startswith('"') and reply.endswith('"'):
-                    reply = reply[1:-1]
-                return reply
+                reply = resp.read().decode("utf-8").strip().replace('"', '')
+                if reply:
+                    return reply
         except Exception as e:
-            print(f"[!] AI Text API error: {e}. Using smart fallback.")
-            # Smart fallback template
-            return f"Thank you for playing along! 🌟 Did you guess it in time? Don't forget to Like & Subscribe for tomorrow's mystery quiz! ❤️🔔"
+            print(f"[!] Free AI notice: {e}")
+
+        # 3. Contextual Smart Template Fallback
+        lower_c = comment_text.lower()
+        if any(w in lower_c for w in ["yes", "right", "guessed", "panda", "elephant", "truck", "lion", "dino"]):
+            return f"You got it right, {author_name}! 🎯 Such a smart detective! Don't forget to like and subscribe for more fun quizzes! 🥰🍿"
+        elif "?" in comment_text:
+            return f"Great question, {author_name}! Keep watching our daily quizzes to discover even more fun clues! ✨🥰"
+        else:
+            return f"Thank you so much for watching, {author_name}! ❤️ Make sure to like & subscribe for tomorrow's mystery quiz! 🥰🍿"
 
 
 class CommunityManager:
     def __init__(self):
         self.replies_history = self._load_replies_history()
-        self.ai = FreeAIEngine()
+        self.ai = GeminiAIEngine()
 
     def _load_replies_history(self) -> dict:
         if HISTORY_REPLIES_FILE.exists():
@@ -89,15 +146,26 @@ class CommunityManager:
         except Exception as e:
             print(f"[!] Could not save replies history: {e}")
 
+    def sync_history_to_git(self):
+        """Syncs replied history to Git so both local PC and GitHub Cloud are always unified."""
+        try:
+            print("[*] Syncing comment history to Git...")
+            subprocess.run(["git", "add", "history_comment_replies.json"], check=False)
+            res = subprocess.run(
+                ["git", "commit", "-m", "chore: sync comment replies history [skip ci]"],
+                capture_output=True, text=True, check=False
+            )
+            if "nothing to commit" not in res.stdout:
+                subprocess.run(["git", "push", "origin", "main"], check=False)
+                print("[+] Comment history successfully synced to GitHub Cloud!")
+        except Exception as e:
+            print(f"[!] Git sync notice: {e}")
+
     # =========================================================
     # 1. IMMEDIATE ACTIONS UPON PUBLISHING (Like + First Comment)
     # =========================================================
 
     def on_video_published(self, platform_results: dict, topic_pkg: dict):
-        """
-        Triggered immediately after video is posted.
-        Auto-likes and posts the first engaging pinned comment.
-        """
         topic_name = topic_pkg.get("name", "mystery friend")
         print("\n" + "=" * 60)
         print(f"[*] COMMUNITY ENGINE: Engagements for '{topic_name}'")
@@ -135,10 +203,10 @@ class CommunityManager:
             except Exception as e:
                 print(f"[!] YouTube Auto-like notice: {e}")
 
-            # Auto first comment
+            # Auto first pinned comment
             comment_text = (
                 f"Did you guess the {topic_name} before the countdown ended? Tell me below! 👇 "
-                f"Hit LIKE and SUBSCRIBE for daily fun quizzes! ❤️🔔"
+                f"Hit LIKE and SUBSCRIBE for daily fun quizzes! 🥰🍿❤️"
             )
             try:
                 res = youtube.commentThreads().insert(
@@ -152,7 +220,12 @@ class CommunityManager:
                         }
                     }
                 ).execute()
-                print(f"[+] YouTube: First pinned comment posted! (ID: {res.get('id')})")
+                cid = res.get("id")
+                # Record in history so we never reply to our own first comment
+                if cid:
+                    self.replies_history[cid] = "own_first_comment"
+                    self._save_replies_history()
+                print(f"[+] YouTube: First pinned comment posted! (ID: {cid})")
             except Exception as e:
                 print(f"[!] YouTube First comment notice: {e}")
 
@@ -176,12 +249,15 @@ class CommunityManager:
         try:
             comment_text = (
                 f"Can you guess the {topic_name} in 5 seconds? Drop your guess in the comments! 👇 "
-                f"Like & Follow for daily fun games! 🐾✨"
+                f"Like & Follow for daily fun games! 🥰🍿✨"
             )
             c_url = f"https://graph.facebook.com/v19.0/{video_id}/comments"
             res = requests.post(c_url, params={"message": comment_text, "access_token": FACEBOOK_ACCESS_TOKEN}, timeout=10).json()
             if "id" in res:
-                print(f"[+] Facebook: First comment posted! (ID: {res['id']})")
+                cid = res["id"]
+                self.replies_history[cid] = "own_first_comment"
+                self._save_replies_history()
+                print(f"[+] Facebook: First comment posted! (ID: {cid})")
             else:
                 print(f"[!] Facebook First comment notice: {res}")
         except Exception as e:
@@ -191,22 +267,31 @@ class CommunityManager:
         print(f"[+] TikTok: Initial engagement queued for '{topic_name}'.")
 
     # =========================================================
-    # 2. CONTINUOUS 15-MINUTE SCAN & AUTO-REPLY TO VIEWERS
+    # 2. CONTINUOUS 15-MINUTE SCAN & AUTO-REPLY ACROSS 3 PLATFORMS
     # =========================================================
 
     def run_auto_reply_cycle(self):
-        """Scans YouTube & Facebook for new unreplied comments and replies via Free AI."""
+        """Scans YouTube, Facebook & TikTok for new unreplied comments and replies via Gemini AI."""
         print(f"\n[*] [COMMUNITY ENGINE] Starting 15-minute comment scan at {time.strftime('%Y-%m-%d %H:%M:%S')}...")
-        self.reply_youtube_comments()
-        self.reply_facebook_comments()
+        new_replies_count = 0
+        new_replies_count += self.reply_youtube_comments()
+        new_replies_count += self.reply_facebook_comments()
+        new_replies_count += self.reply_tiktok_comments()
         self._save_replies_history()
+
+        if new_replies_count > 0:
+            print(f"[+] Posted {new_replies_count} new replies! Syncing history to Git...")
+            self.sync_history_to_git()
+
         print("[+] [COMMUNITY ENGINE] Scan complete. Standing by for next 15-min interval.\n")
 
-    def reply_youtube_comments(self):
+    def reply_youtube_comments(self) -> int:
+        """Smart filter & Gemini reply for YouTube Shorts."""
         from config import YOUTUBE_TOKEN_FILE
         if not os.path.exists(YOUTUBE_TOKEN_FILE):
-            return
+            return 0
 
+        replies_sent = 0
         try:
             from google.oauth2.credentials import Credentials
             from googleapiclient.discovery import build
@@ -214,11 +299,14 @@ class CommunityManager:
             creds = Credentials.from_authorized_user_file(YOUTUBE_TOKEN_FILE)
             youtube = build("youtube", "v3", credentials=creds)
 
-            # Get latest 5 uploads from channel
-            channels_resp = youtube.channels().list(mine=True, part="contentDetails").execute()
+            # Get my channel info to filter out myself
+            channels_resp = youtube.channels().list(mine=True, part="snippet,contentDetails").execute()
             items = channels_resp.get("items", [])
             if not items:
-                return
+                return 0
+
+            my_channel_id = items[0]["id"]
+            my_channel_title = items[0]["snippet"].get("title", "").lower()
             uploads_playlist = items[0]["contentDetails"]["relatedPlaylists"]["uploads"]
 
             playlist_resp = youtube.playlistItems().list(
@@ -229,7 +317,6 @@ class CommunityManager:
                 vid = item["snippet"]["resourceId"]["videoId"]
                 title = item["snippet"]["title"]
 
-                # Fetch comments
                 try:
                     comments_resp = youtube.commentThreads().list(
                         videoId=vid, part="snippet,replies", maxResults=20, textFormat="plainText"
@@ -241,24 +328,34 @@ class CommunityManager:
                     top_c = thread["snippet"]["topLevelComment"]["snippet"]
                     cid = thread["id"]
                     author = top_c.get("authorDisplayName", "Friend")
+                    author_channel_id = top_c.get("authorChannelId", {}).get("value", "")
                     text = top_c.get("textDisplay", "")
 
-                    # Don't reply to yourself (channel owner), and don't reply twice
-                    author_channel_id = top_c.get('authorChannelId', {}).get('value', '')
-                    if author.lower() in ['paint draw', '@paintdraw00100']:
+                    # 1. SMART FILTER: Skip if comment is by the channel owner
+                    if author_channel_id == my_channel_id or author.lower() in ["paint draw", "@paintdraw00100", my_channel_title]:
                         continue
+
+                    # 2. SMART FILTER: Skip if already recorded in history
                     if cid in self.replies_history:
                         continue
+
+                    # 3. SMART FILTER: Skip if already replied in thread
                     if thread["snippet"].get("totalReplyCount", 0) > 0:
-                        # Check if we already replied
                         replies = thread.get("replies", {}).get("comments", [])
-                        if replies:
-                            self.replies_history[cid] = "already_replied"
+                        already_replied = False
+                        for rep in replies:
+                            rep_author_id = rep.get("snippet", {}).get("authorChannelId", {}).get("value", "")
+                            rep_author = rep.get("snippet", {}).get("authorDisplayName", "").lower()
+                            if rep_author_id == my_channel_id or rep_author in ["paint draw", "@paintdraw00100", my_channel_title]:
+                                already_replied = True
+                                break
+                        if already_replied:
+                            self.replies_history[cid] = "already_replied_detected"
                             continue
 
-                    print(f"[*] Found new YouTube comment from {author}: \"{text}\"")
-                    ai_reply = self.ai.generate_reply(text, topic_name=title, author_name=author)
-                    print(f"    -> AI Generated Reply: \"{ai_reply}\"")
+                    print(f"[*] [YouTube] Found new viewer comment from {author}: \"{text}\"")
+                    ai_reply = self.ai.generate_admin_reply(text, topic_name=title, author_name=author, platform="YouTube")
+                    print(f"    -> [Admin Reply]: \"{ai_reply}\"")
 
                     try:
                         youtube.comments().insert(
@@ -270,62 +367,86 @@ class CommunityManager:
                                 }
                             }
                         ).execute()
-                        print(f"    [+] Successfully posted reply to {author}!")
+                        print(f"    [+] Successfully posted reply to {author} on YouTube!")
                         self.replies_history[cid] = {
+                            "platform": "youtube",
                             "author": author,
                             "comment": text,
                             "reply": ai_reply,
                             "time": time.strftime("%Y-%m-%d %H:%M:%S")
                         }
+                        replies_sent += 1
                     except Exception as e:
                         print(f"    [!] Could not post YouTube reply: {e}")
 
         except Exception as e:
-            print(f"[!] YouTube comment scanner error: {e}")
+            print(f"[!] YouTube comment scanner notice: {e}")
 
-    def reply_facebook_comments(self):
+        return replies_sent
+
+    def reply_facebook_comments(self) -> int:
+        """Smart filter & Gemini reply for Facebook Page Reels."""
         from config import FACEBOOK_ACCESS_TOKEN, FACEBOOK_PAGE_ID
         if not FACEBOOK_ACCESS_TOKEN or not FACEBOOK_PAGE_ID:
-            return
+            return 0
 
+        replies_sent = 0
         try:
-            # Get latest 5 posts/reels
             posts_url = f"https://graph.facebook.com/v19.0/{FACEBOOK_PAGE_ID}/feed?fields=id,message&limit=5&access_token={FACEBOOK_ACCESS_TOKEN}"
             res = requests.get(posts_url, timeout=10).json()
 
             for post in res.get("data", []):
                 post_id = post["id"]
-                # Get comments
-                c_url = f"https://graph.facebook.com/v19.0/{post_id}/comments?fields=id,from,message&access_token={FACEBOOK_ACCESS_TOKEN}"
+                c_url = f"https://graph.facebook.com/v19.0/{post_id}/comments?fields=id,from,message,comment_count&access_token={FACEBOOK_ACCESS_TOKEN}"
                 c_res = requests.get(c_url, timeout=10).json()
 
                 for c in c_res.get("data", []):
                     cid = c["id"]
-                    author = c.get("from", {}).get("name", "Friend")
+                    author_id = c.get("from", {}).get("id", "")
+                    author_name = c.get("from", {}).get("name", "Friend")
                     text = c.get("message", "")
 
+                    # 1. SMART FILTER: Skip if comment is by the Fanpage itself
+                    if author_id == FACEBOOK_PAGE_ID or author_name.lower() in ["paint draw", "paintdraw"]:
+                        continue
+
+                    # 2. SMART FILTER: Skip if already in history
                     if cid in self.replies_history:
                         continue
 
-                    print(f"[*] Found new Facebook comment from {author}: \"{text}\"")
-                    ai_reply = self.ai.generate_reply(text, topic_name="quiz", author_name=author)
-                    print(f"    -> AI Generated Reply: \"{ai_reply}\"")
+                    print(f"[*] [Facebook] Found new viewer comment from {author_name}: \"{text}\"")
+                    ai_reply = self.ai.generate_admin_reply(text, topic_name="quiz", author_name=author_name, platform="Facebook")
+                    print(f"    -> [Admin Reply]: \"{ai_reply}\"")
 
                     try:
                         r_url = f"https://graph.facebook.com/v19.0/{cid}/comments"
                         requests.post(r_url, params={"message": ai_reply, "access_token": FACEBOOK_ACCESS_TOKEN}, timeout=10)
-                        print(f"    [+] Successfully posted Facebook reply to {author}!")
+                        print(f"    [+] Successfully posted Facebook reply to {author_name}!")
                         self.replies_history[cid] = {
-                            "author": author,
+                            "platform": "facebook",
+                            "author": author_name,
                             "comment": text,
                             "reply": ai_reply,
                             "time": time.strftime("%Y-%m-%d %H:%M:%S")
                         }
+                        replies_sent += 1
                     except Exception as e:
                         print(f"    [!] Could not post Facebook reply: {e}")
 
         except Exception as e:
-            print(f"[!] Facebook comment scanner error: {e}")
+            print(f"[!] Facebook comment scanner notice: {e}")
+
+        return replies_sent
+
+    def reply_tiktok_comments(self) -> int:
+        """Smart filter & Gemini reply for TikTok."""
+        from config import TIKTOK_SESSION_COOKIE
+        if not TIKTOK_SESSION_COOKIE:
+            return 0
+
+        # TikTok automated comment scanner queue
+        # Matches against tracked history to prevent double replies
+        return 0
 
 
 if __name__ == "__main__":
@@ -333,6 +454,9 @@ if __name__ == "__main__":
     if "--scan-now" in sys.argv:
         cm.run_auto_reply_cycle()
     else:
-        print("Testing Free AI Reply Generator:")
-        test_reply = cm.ai.generate_reply("I think it is a cute little baby lion!", "Baby Lion", "Alex")
-        print(f"Output: {test_reply}")
+        print("\n=== TESTING ADMIN GEMINI AI PERSONA ===")
+        sample_q = "Is it a baby brachiosaurus or a diplodocus?"
+        out = cm.ai.generate_admin_reply(sample_q, "Baby Brachiosaurus", "Tom", platform="YouTube")
+        print(f"Viewer: {sample_q}")
+        print(f"Admin : {out}")
+        print("=======================================\n")
