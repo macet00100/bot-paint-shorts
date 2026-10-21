@@ -49,11 +49,12 @@ TTS_RATE = "+10%"  # fast-paced energy for US Shorts
 
 # Trend Research Settings (Target US & Global viral topics)
 TREND_REGIONS = ["US"]
-# Top 3 viral slots for US/International audiences (converted to Vietnam Time UTC+7):
-# 1. 07:00 VN = 08:00 PM EDT (US Prime Time Evening / Peak scrolling)
-# 2. 19:00 VN = 08:00 AM EDT (US Morning commute & Europe afternoon)
-# 3. 23:00 VN = 12:00 PM EDT (US Lunch break peak)
-SCHEDULE_TIMES = ["07:00", "19:00", "23:00"]  # Vietnam Time (UTC+7)
+# 4 Golden slots for US/International audiences (converted to Vietnam Time UTC+7):
+# 1. 03:00 VN = 04:00 PM EDT (US Afternoon Rush / Kids after-school)
+# 2. 07:00 VN = 08:00 PM EDT (US Prime Time Evening / Peak family scrolling)
+# 3. 19:00 VN = 08:00 AM EDT (US Morning commute & Europe afternoon)
+# 4. 23:00 VN = 12:00 PM EDT (US Lunch break peak & Europe evening)
+SCHEDULE_TIMES = ["03:00", "07:00", "19:00", "23:00"]  # Vietnam Time (UTC+7)
 
 # AI Image Settings (100% Free)
 IMAGE_PROVIDER = "pollinations"
