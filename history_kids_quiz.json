@@ -1,0 +1,22 @@
+[
+  {
+    "topic_id": "baby_brachiosaurus",
+    "name": "Baby Brachiosaurus",
+    "category": "dinosaurs",
+    "completed_at": "2026-10-21 18:14:54",
+    "clues": [
+      "CLUE 1: Super long neck reaching the clouds!",
+      "CLUE 2: I eat leaves from the tallest trees!"
+    ]
+  },
+  {
+    "topic_id": "baby_panda",
+    "name": "Baby Panda",
+    "category": "animals",
+    "completed_at": "2026-10-21 18:25:00",
+    "clues": [
+      "CLUE 1: Black and white fluffy fur!",
+      "CLUE 2: I love eating green bamboo!"
+    ]
+  }
+]

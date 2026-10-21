@@ -1,4 +1,4 @@
-name: POV Pencil Sketch Video Bot 24/7 Cloud
+name: Kids Mystery Quiz Video Bot 24/7 Cloud
 
 on:
   schedule:
@@ -28,16 +28,15 @@ jobs:
           python-version: '3.12'
           cache: 'pip'
 
-      - name: Install System Dependencies (FFmpeg & OpenCV Libs)
+      - name: Install System Dependencies (FFmpeg, OpenCV & Kids Fonts)
         run: |
           sudo apt-get update
-          sudo apt-get install -y ffmpeg libsm6 libxext6 libgl1-mesa-glx
+          sudo apt-get install -y ffmpeg libsm6 libxext6 libgl1-mesa-glx fonts-comic-neue fonts-dejavu-core
 
       - name: Install Python Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          playwright install chromium --with-deps
 
       - name: Setup Cloud Credentials
         env:
@@ -54,28 +53,31 @@ jobs:
             echo "$YOUTUBE_TOKEN_BASE64" | base64 -d > youtube_token.json
           fi
 
-      - name: Run Video Generation & Auto Upload Pipeline
+      - name: Run Kids Mystery Video Pipeline
         env:
           FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
           FB_ACCESS_TOKEN: ${{ secrets.FB_ACCESS_TOKEN }}
           TIKTOK_SESSION_COOKIE: ${{ secrets.TIKTOK_SESSION_COOKIE }}
         run: |
-          python main.py --run-now
+          # If social credentials exist, publish with --upload; otherwise local render preview
+          if [ -n "$FB_ACCESS_TOKEN" ] || [ -f "youtube_token.json" ] || [ -n "$TIKTOK_SESSION_COOKIE" ]; then
+            python main.py --run-now --upload
+          else
+            python main.py --run-now
+          fi
 
-      - name: Commit Updated Object History (Anti-Duplication)
+      - name: Commit Updated Quiz History (Anti-Duplication)
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add history_objects.json
-          git commit -m "chore: record newly drawn object to history [skip ci]" || echo "No history changes to commit"
+          git add history_kids_quiz.json assets/kids_characters/
+          git commit -m "chore: record newly generated quiz to history [skip ci]" || echo "No history changes to commit"
           git push origin main || echo "Push skipped"
 
-      - name: Archive Generated Videos & Logs
+      - name: Ephemeral Preview Artifact (Auto-deleted after 2 days)
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: generated-videos
-          path: |
-            output/*.mp4
-            output/*.json
-          retention-days: 14
+          name: latest-kids-video
+          path: output/*.mp4
+          retention-days: 2 # Keeps cloud disk 100% clean and free

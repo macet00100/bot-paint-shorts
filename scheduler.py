@@ -1,24 +1,25 @@
 """
-24/7 Automation Scheduler - Pencil Sketch Edition
-Runs automatically in the background, selecting unique non-repeating objects and posting:
-- 07:00 AM (00:00 UTC)
-- 07:00 PM (12:00 UTC)
-- 11:00 PM (16:00 UTC)
+24/7 Autonomous Automation Scheduler - Kids Mystery Guessing Game Edition
+Runs automatically 24/7 without manual intervention:
+1. Selects unique, non-repeating topic from 400+ kid database (Infinite with Gemini).
+2. Generates 3D Pixar character art & glowing silhouette (100% Free).
+3. Generates synchronized native English child voiceover (Edge-TTS 100% Free).
+4. Renders full 1080x1920 9:16 vertical shorts video with countdown, confetti, and sound effects.
+5. Manages storage cleanly: auto-deletes intermediate files, keeps rolling latest 3 videos.
+6. Auto-posts to YouTube Shorts, TikTok, Facebook Reels (when upload enabled).
 """
-import sys
 import os
-import time
+import sys
 import datetime
 from pathlib import Path
 from apscheduler.schedulers.blocking import BlockingScheduler
 
 from config import SCHEDULE_TIMES, OUTPUT_DIR, TEMP_DIR
-from object_catalog import ObjectCurator
-from ai_artist import AIArtist
-from voice_generator import VoiceGenerator
-from ai_video_engine import AIVideoEngine
-from sketch_engine import SketchEngine
-from video_composer import VideoComposer
+from kids_catalog import KidsCurator
+from kids_art_engine import KidsArtEngine
+from kids_voice_engine import KidsVoiceEngine
+from kids_video_engine import KidsVideoEngine
+from cleaner import StorageManager
 from auto_uploader import AutoUploader
 
 # Force UTF-8 on Windows
@@ -28,126 +29,116 @@ if sys.stderr and hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8")
 
 
-def run_pipeline(trigger_time="MANUAL", target_object=None, enable_upload=False):
-    """
-    Executes the full automated pencil sketch workflow:
-    1. Select unique, non-repeating everyday object from catalog
-    2. AI generates authentic Graphite Pencil Sketch on paper
-    3. AI generates synchronized native English tutorial voiceover
-    4. POV Sketch Engine renders ~35s 9:16 drawing video on A4 desk paper
-    5. Video Composer adds ASMR pencil scratching, lofi BGM, and muxes video
-    6. Multi-platform upload only if enable_upload=True
-    """
+def run_pipeline(trigger_time="MANUAL", target_topic=None, enable_upload=False):
     timestamp_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    print("\n" + "=" * 60)
-    print(f"[*] RUNNING PENCIL SKETCH PIPELINE [{trigger_time}] at {timestamp_str}")
+    print("\n" + "=" * 65)
+    print(f"[*] RUNNING KIDS MYSTERY QUIZ PIPELINE [{trigger_time}] at {timestamp_str}")
     print(f"[*] Mode: {'LIVE AUTO-UPLOAD' if enable_upload else 'LOCAL PREVIEW ONLY (Safe Mode)'}")
-    print("=" * 60)
+    print("=" * 65)
+
+    storage = StorageManager(max_local_videos=3)
 
     try:
-        # Step 1: Unique Object Selection
-        print("\n--- STEP 1: OBJECT SELECTION (ANTI-DUPLICATION) ---")
-        curator = ObjectCurator()
-        pkg = curator.create_sketch_package(object_name=target_object)
-        obj_name = pkg["object_name"]
-        display_name = pkg["display_name"]
-        print(f"[+] Selected Unique Object: '{display_name}'")
-        print(f"[+] Video Title: '{pkg['video_title']}'")
+        # Step 1: Select Unique Topic (Anti-Duplication)
+        print("\n--- STEP 1: SELECT UNIQUE QUIZ TOPIC ---")
+        curator = KidsCurator()
+        quiz_pkg = curator.select_next_quiz(target_id=target_topic)
+        topic_name = quiz_pkg["name"]
+        print(f"[+] Topic Selected: '{topic_name}' ({quiz_pkg.get('category', 'general')})")
+        print(f"[+] Clue 1: {quiz_pkg['clue1']}")
+        print(f"[+] Clue 2: {quiz_pkg['clue2']}")
 
-        # Step 2: 2K AI Pencil Sketch on Paper
-        print("\n--- STEP 2: GRAPHITE PENCIL SKETCH GENERATION ---")
-        artist = AIArtist()
-        image_path = TEMP_DIR / f"sketch_art_{timestamp_str}.jpg"
-        artist.generate_caricature_image(pkg["image_prompt"], image_path)
+        # Step 2: 3D Pixar Character Art & Silhouette
+        print("\n--- STEP 2: 3D CHARACTER ART & SILHOUETTE (100% FREE) ---")
+        art_engine = KidsArtEngine()
+        cutout_path, sil_path = art_engine.get_character_assets(quiz_pkg)
 
-        # Step 3: Native English Voiceover
-        print("\n--- STEP 3: NATIVE ENGLISH VOICEOVER GENERATION ---")
-        voice_gen = VoiceGenerator()
-        voice_path = TEMP_DIR / f"voice_{timestamp_str}.mp3"
-        voice_gen.generate_voiceover(pkg["full_script"], voice_path)
+        # Step 3: Native English Child Voiceover
+        print("\n--- STEP 3: NATIVE ENGLISH CHILD VOICEOVER ---")
+        voice_engine = KidsVoiceEngine()
+        voice_paths = voice_engine.generate_voiceover_segments(quiz_pkg)
 
-        # Step 4: True Living AI Video Generation (Hugging Face LTX-Video)
-        print("\n--- STEP 4: LIVING AI VIDEO GENERATION (LTX-VIDEO DISTILLED) ---")
-        final_video_name = f"sketch_{timestamp_str}.mp4"
+        # Step 4: Video Frames & Audio Composition (1080x1920)
+        print("\n--- STEP 4: RENDER FULL 1080x1920 SHORTS VIDEO ---")
+        video_engine = KidsVideoEngine()
+        raw_video_path = TEMP_DIR / f"raw_quiz_{timestamp_str}.mp4"
+        video_engine.render_video_frames(quiz_pkg, cutout_path, sil_path, raw_video_path)
+
+        audio_path = TEMP_DIR / f"audio_quiz_{timestamp_str}.wav"
+        video_engine.mix_audio_track(voice_paths, audio_path)
+
+        final_video_name = f"kids_quiz_{quiz_pkg['id']}_{timestamp_str}.mp4"
         final_video_path = OUTPUT_DIR / final_video_name
+        video_engine.assemble_final_mp4(raw_video_path, audio_path, final_video_path)
 
-        ai_success = False
-        try:
-            ai_engine = AIVideoEngine()
-            if ai_engine.client is not None:
-                ai_engine.render_full_tutorial(
-                    object_name=obj_name,
-                    display_name=display_name,
-                    voiceover_path=voice_path,
-                    output_video_path=final_video_path
-                )
-                ai_success = True
-        except Exception as ai_err:
-            print(f"[!] AI Video Engine encountered issue: {ai_err}. Falling back to POV sketch engine...")
+        # Step 5: Record in History to prevent any duplicates
+        curator.record_completed(quiz_pkg)
 
-        if not ai_success:
-            print("\n--- STEP 4 (FALLBACK): POV SKETCH ENGINE ANIMATION (9:16) ---")
-            engine = SketchEngine()
-            raw_video_path = TEMP_DIR / f"sketch_raw_{timestamp_str}.mp4"
-            engine.render_sketch_video(image_path, display_name, raw_video_path)
-
-            print("\n--- STEP 5: AUDIO COMPOSITION & SYNC ---")
-            composer = VideoComposer()
-            composer.compose_final_video(raw_video_path, voice_path, final_video_path)
-
-        # Step 6: Multi-Platform Auto Upload (Only when enabled)
+        # Step 6: Multi-Platform Auto Upload (when enabled)
         if enable_upload:
             print("\n--- STEP 6: MULTI-PLATFORM AUTO UPLOAD ---")
             uploader = AutoUploader()
+            video_title = f"Can You Guess This {quiz_pkg.get('category', 'Animal').capitalize()} in 5 Seconds? 🐾 #shorts"
+            short_caption = (
+                f"Can you guess the mystery {quiz_pkg.get('category', 'animal')}? "
+                f"Tell me in the comments! 👇 Subscribe for daily fun quizzes! #kids #quiz #shorts"
+            )
             uploader.upload_all(
                 final_video_path,
-                pkg["video_title"],
-                pkg["short_caption"],
-                tags=["pencilsketch", "howtodraw", "art", "drawing", "shorts"]
+                video_title,
+                short_caption,
+                tags=["kids", "quiz", "guesstheanimal", "shorts", "animation", "family"]
             )
         else:
-            print("\n--- STEP 6: PREVIEW MODE (AUTO-UPLOAD DISABLED) ---")
-            print(f"[i] Safe Mode: Video saved locally for inspection at:")
+            print("\n--- STEP 6: PREVIEW MODE (SAFE MODE - NO UPLOAD) ---")
+            print(f"[i] Video saved locally for inspection at:")
             print(f"    -> {final_video_path}")
-            print(f"[i] Upload is paused so you can review without needing to delete unwanted posts.")
 
-        print("\n" + "=" * 60)
-        print(f"[SUCCESS] Pencil sketch video created: {final_video_path}")
-        print("=" * 60 + "\n")
+        # Step 7: Automatic Storage Cleanup (Free up disk space)
+        print("\n--- STEP 7: STORAGE CLEANUP & DISK MANAGEMENT ---")
+        storage.clean_temp_directory()
+        storage.enforce_rolling_retention()
+
+        print("\n" + "=" * 65)
+        print(f"[SUCCESS] Kids mystery video pipeline finished: {final_video_path.name}")
+        print("=" * 65 + "\n")
         return final_video_path
 
     except Exception as e:
         print(f"\n[!] Pipeline error: {e}")
         import traceback
         traceback.print_exc()
+        # Even on error, clean up temp files
+        storage.clean_temp_directory()
         return None
 
 
 def start_scheduler():
-    """Starts 24/7 background scheduler"""
-    scheduler = BlockingScheduler(timezone="Asia/Ho_Chi_Minh")
+    """Runs 24/7 background scheduler posting at configured times."""
+    scheduler = BlockingScheduler()
     print("\n" + "=" * 60)
-    print("   24/7 PENCIL SKETCH AUTOMATION SCHEDULER STARTED")
+    print("[*] STARTING 24/7 KIDS VIDEO BOT BACKGROUND SCHEDULER")
+    print(f"[*] Posting Schedule (Local Time): {SCHEDULE_TIMES}")
     print("=" * 60)
-    print(f"Scheduled posting times: {', '.join(SCHEDULE_TIMES)} (Vietnam Time UTC+7)")
-    print("Press Ctrl+C to stop.\n")
 
-    for t in SCHEDULE_TIMES:
-        hour, minute = t.split(":")
+    for st in SCHEDULE_TIMES:
+        h, m = st.split(":")
         scheduler.add_job(
             run_pipeline,
             "cron",
-            hour=hour,
-            minute=minute,
-            args=[f"SCHEDULED_{t}"],
-            name=f"Job_{t}"
+            hour=int(h),
+            minute=int(m),
+            kwargs={"trigger_time": f"CRON_{st}", "enable_upload": True},
+            id=f"job_{st}"
         )
+        print(f"[+] Scheduled daily run at {st}")
 
+    print("[*] Scheduler is actively waiting for next trigger. Press Ctrl+C to stop.\n")
     try:
         scheduler.start()
     except (KeyboardInterrupt, SystemExit):
-        print("\n[!] Scheduler stopped by user.")
+        print("\n[!] Scheduler stopped cleanly.")
 
 
 if __name__ == "__main__":
-    run_pipeline(trigger_time="TEST_DIRECT")
+    run_pipeline(trigger_time="TEST_CLI", enable_upload=False)
