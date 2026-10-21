@@ -154,10 +154,25 @@ class AutoUploader:
 
         try:
             from playwright.sync_api import sync_playwright
-            print("[*] Launching headless browser for TikTok upload...")
+            print("[*] Launching headless browser for TikTok Studio upload...")
             with sync_playwright() as p:
-                browser = p.chromium.launch(headless=True)
-                context = browser.new_context()
+                launch_kwargs = {
+                    "headless": True,
+                    "args": [
+                        "--disable-blink-features=AutomationControlled",
+                        "--no-sandbox",
+                        "--disable-dev-shm-usage"
+                    ]
+                }
+                edge_path = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+                if os.path.exists(edge_path):
+                    launch_kwargs["executable_path"] = edge_path
+
+                browser = p.chromium.launch(**launch_kwargs)
+                context = browser.new_context(
+                    user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
+                    viewport={"width": 1920, "height": 1080}
+                )
                 # Inject sessionid and sessionid_ss cookies
                 context.add_cookies([
                     {
@@ -174,25 +189,50 @@ class AutoUploader:
                     }
                 ])
                 page = context.new_page()
-                page.goto("https://www.tiktok.com/creator-center/upload?from=upload", timeout=60000)
-                time.sleep(3)
-
-                # Set input file
-                file_input = page.locator("input[type='file']")
-                file_input.set_input_files(str(video_path))
+                studio_url = "https://www.tiktok.com/tiktokstudio/upload?from=upload"
+                print(f"[*] Navigating to {studio_url}...")
+                page.goto(studio_url, timeout=60000)
                 time.sleep(5)
 
-                # Caption
-                caption_input = page.locator(".public-DraftEditor-content")
-                if caption_input.count() > 0:
-                    caption_input.fill(description)
+                # Wait for attached file input (hidden by design in modern CSS)
+                print("[*] Waiting for upload file input...")
+                page.wait_for_selector("input[type='file']", state="attached", timeout=45000)
+                page.set_input_files("input[type='file']", str(video_path))
+                print("[+] Video file attached to TikTok Studio. Waiting for video processing...")
+                time.sleep(10)
 
-                time.sleep(3)
-                # Click Post
-                post_btn = page.locator("button:has-text('Post')")
+                # Clear Joyride tutorials, guide overlays & modals
+                try:
+                    page.evaluate("""() => {
+                        const joyride = document.getElementById('react-joyride-portal');
+                        if (joyride) joyride.remove();
+                        const overlays = document.querySelectorAll('.react-joyride__overlay, .TUXModal-overlay');
+                        overlays.forEach(el => el.remove());
+                    }""")
+                    print("[+] Overlays & tutorials dismissed.")
+                except Exception as oe:
+                    print(f"[-] Could not clear overlays: {oe}")
+
+                # Caption
+                caption_input = page.locator(".public-DraftEditor-content, div[contenteditable='true']")
+                if caption_input.count() > 0:
+                    try:
+                        caption_input.first.click(force=True)
+                        caption_input.first.fill(description)
+                        print("[+] Video caption added.")
+                    except Exception as ce:
+                        print(f"[-] Could not fill caption: {ce}")
+
+                time.sleep(5)
+                # Click Post / Đăng using exact data-e2e selector or primary button with force=True
+                post_btn = page.locator('button[data-e2e="post_video_button"], button.Button__root--type-primary:has-text("Đăng"), button.Button__root--type-primary:has-text("Post")')
                 if post_btn.count() > 0:
-                    post_btn.click()
-                    time.sleep(5)
+                    try:
+                        post_btn.first.click(force=True)
+                        print("[+] Clicked Post/Đăng button. Finalizing upload...")
+                        time.sleep(15)
+                    except Exception as be:
+                        print(f"[-] Error clicking post button: {be}")
 
                 browser.close()
                 print("[+] TikTok video uploaded via automated session!")
