@@ -53,7 +53,7 @@ def main():
         final_vid = OUTPUT_DIR / f"paint_custom_{ts}.mp4"
         VideoComposer().compose_final_video(raw_vid, voice_path, final_vid)
 
-        AutoUploader().upload_all(final_vid, pkg["video_title"], pkg["full_script"])
+        AutoUploader().upload_all(final_vid, pkg["video_title"], pkg["short_caption"])
         print(f"\n[+] Finished custom video: {final_vid}")
     else:
         # Default behavior: run 1 full test video to show the user immediate results

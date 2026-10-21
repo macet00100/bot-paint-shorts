@@ -82,8 +82,8 @@ def run_pipeline(trigger_time="MANUAL"):
         uploader.upload_all(
             final_video_path,
             pkg["video_title"],
-            f"{pkg['full_script']}\n\n{pkg['hashtags']}",
-            tags=["shorts", "mspaint", "art", "drawing", "biemhoa", "trending"]
+            pkg["short_caption"],
+            tags=["shorts", "mspaint", "art", "drawing", "trending"]
         )
 
         print("\n" + "=" * 60)

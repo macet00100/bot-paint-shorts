@@ -103,7 +103,14 @@ class TrendResearcher:
         title = trend_item["title"]
         print(f"[*] Researched Trend: '{title}' from {trend_item.get('source', 'Web')}")
 
-        clean_subject = re.sub(r'[^a-zA-Z0-9\s]', '', title).strip()
+        clean_subject = re.sub(r'[^a-zA-Z0-9\s]', ' ', title).strip()
+        clean_subject = " ".join(clean_subject.split()[:4])  # Limit to 4 words max
+        if not clean_subject or len(clean_subject) < 2:
+            fallback_characters = [
+                "Elon Musk", "MrBeast", "Cristiano Ronaldo",
+                "Goku", "Batman", "Spider-Man", "Iron Man"
+            ]
+            clean_subject = random.choice(fallback_characters)
 
         # Detailed prompt for high quality comic caricature
         image_prompt = (
@@ -113,10 +120,13 @@ class TrendResearcher:
             f"in the style of classic comic magazine cover art, 4k resolution, high detail"
         )
 
-        # Video Title for YouTube Shorts / TikTok
-        video_title = f"Drawing '{clean_subject}' using ONLY MS Paint! 🐭🎨"
+        # Short & Punchy Video Title
+        video_title = f"Drawing {clean_subject} in MS Paint! 🎨🐭"
 
-        # English 26-second voiceover script
+        # Ultra-short, viral post caption for TikTok / Reels / Shorts
+        short_caption = f"Drawing {clean_subject} using ONLY a mouse in MS Paint! 🎨 Rate 1-10! 👇\n\n#shorts #mspaint #drawing #art #trending"
+
+        # English 26-second voiceover script (AUDIO ONLY)
         script_hook = f"Can you believe this caricature of {clean_subject} was drawn 100% in MS Paint with only a computer mouse? Let's find out!"
         script_sketch = "Starting with the pencil tool. Sketching these curves with a cheap mouse is an absolute nightmare for my wrist!"
         script_color = "Now let's bring it to life with vibrant colors! Filling in each section, look at how hilarious and expressive it looks!"
@@ -126,13 +136,13 @@ class TrendResearcher:
         full_script = f"{script_hook} {script_sketch} {script_color} {script_reveal} {script_cta}"
 
         hashtags = [
-            "#shorts", "#mspaint", "#drawingchallenge", "#speedpaint",
-            "#caricature", "#satisfyingart", "#artchallenge", "#trending", "#viral"
+            "#shorts", "#mspaint", "#drawing", "#art", "#trending"
         ]
 
         return {
-            "topic": title,
+            "topic": clean_subject,
             "video_title": video_title,
+            "short_caption": short_caption,
             "image_prompt": image_prompt,
             "script_sections": {
                 "hook": script_hook,
