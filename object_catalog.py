@@ -159,6 +159,8 @@ class ObjectCurator:
         """
         if not object_name:
             object_name = self.select_next_object()
+        else:
+            self._record_used(object_name)
 
         display_name = object_name.title()
 

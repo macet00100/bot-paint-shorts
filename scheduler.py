@@ -31,9 +31,9 @@ def run_pipeline(trigger_time="MANUAL", target_object=None):
     """
     Executes the full automated pencil sketch workflow:
     1. Select unique, non-repeating everyday object from catalog
-    2. AI generates 2K authentic Graphite Pencil Sketch on paper
+    2. AI generates authentic Graphite Pencil Sketch on paper
     3. AI generates synchronized native English tutorial voiceover
-    4. Sketch Engine renders ~38s 9:16 drawing video on sketchbook paper
+    4. POV Sketch Engine renders ~35s 9:16 drawing video on A4 desk paper
     5. Video Composer adds ASMR pencil scratching, lofi BGM, and muxes video
     6. Auto Uploader posts to YouTube Shorts, Facebook Reels, and TikTok
     """

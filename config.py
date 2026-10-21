@@ -26,11 +26,11 @@ if env_file.exists():
 for directory in [ASSETS_DIR, OUTPUT_DIR, TEMP_DIR]:
     directory.mkdir(parents=True, exist_ok=True)
 
-# Video Specifications (9:16 for Shorts / TikTok / Reels)
-VIDEO_WIDTH = 1080
-VIDEO_HEIGHT = 1920
-FPS = 30
-TARGET_DURATION = 30  # seconds
+# Video Specifications (9:16 for Shorts / TikTok / Reels - matching POV reference)
+VIDEO_WIDTH = 720
+VIDEO_HEIGHT = 1280
+FPS = 24
+TARGET_DURATION = 35  # seconds (< 60s)
 
 # Timeline breakdown (in seconds, total = 30s)
 DURATION_HOOK = 3.0       # 0s - 3s: Finished art preview + hook
