@@ -110,12 +110,69 @@ class KidsVideoEngine:
                 patch[:, :, c] * alpha + base_bgr[by1:by2, bx1:bx2, c] * (1.0 - alpha)
             ).astype(np.uint8)
 
+    @classmethod
+    def _draw_multiline_pill_card(cls, draw, text, font, cy, bg_color, border_color, text_color, max_width=880, slide_offset=0):
+        words = text.split()
+        lines = []
+        cur_line = []
+        pad_x, pad_y = 42, 16
+        avail_w = max_width - 2 * pad_x
+
+        for w in words:
+            test_line = " ".join(cur_line + [w])
+            bbox = font.getbbox(test_line)
+            if (bbox[2] - bbox[0]) <= avail_w:
+                cur_line.append(w)
+            else:
+                if cur_line:
+                    lines.append(" ".join(cur_line))
+                    cur_line = [w]
+                else:
+                    lines.append(w)
+                    cur_line = []
+        if cur_line:
+            lines.append(" ".join(cur_line))
+
+        line_heights = []
+        line_widths = []
+        for l in lines:
+            bbox = font.getbbox(l)
+            line_widths.append(bbox[2] - bbox[0])
+            line_heights.append(bbox[3] - bbox[1])
+
+        max_line_w = max(line_widths) if line_widths else 100
+        line_spacing = 8
+        total_text_h = sum(line_heights) + line_spacing * (len(lines) - 1)
+
+        cx = WIDTH // 2 + slide_offset
+        card_w = min(max_width, max_line_w + 2 * pad_x)
+        card_h = total_text_h + 2 * pad_y
+
+        x1 = cx - card_w // 2
+        y1 = cy - card_h // 2
+        x2 = cx + card_w // 2
+        y2 = cy + card_h // 2
+        r = min(32, card_h // 2)
+
+        draw.rounded_rectangle([x1 + 6, y1 + 8, x2 + 6, y2 + 8], radius=r, fill=(40, 40, 40, 90))
+        draw.rounded_rectangle([x1 - 4, y1 - 4, x2 + 4, y2 + 4], radius=r + 4, fill=border_color)
+        draw.rounded_rectangle([x1, y1, x2, y2], radius=r, fill=bg_color)
+
+        cur_y = y1 + pad_y
+        for i, l in enumerate(lines):
+            lw = line_widths[i]
+            lh = line_heights[i]
+            lx = cx - lw // 2
+            bbox = font.getbbox(l)
+            draw.text((lx - bbox[0], cur_y - bbox[1]), l, font=font, fill=text_color)
+            cur_y += lh + line_spacing
+
     @staticmethod
     def _draw_pill_card(draw, text, font, cy, bg_color, border_color, text_color, slide_offset=0):
         bbox = font.getbbox(text)
         tw = bbox[2] - bbox[0]
         th = bbox[3] - bbox[1]
-        pad_x, pad_y = 55, 26
+        pad_x, pad_y = 50, 22
         cx = WIDTH // 2 + slide_offset
         x1, y1 = cx - tw // 2 - pad_x, cy - th // 2 - pad_y
         x2, y2 = cx + tw // 2 + pad_x, cy + th // 2 + pad_y
@@ -155,7 +212,7 @@ class KidsVideoEngine:
         print(f"[*] Rendering {TOTAL_FRAMES} video frames for '{quiz_pkg['name']}'...")
         for f in range(TOTAL_FRAMES):
             bg = self._make_background(f)
-            center_x, center_y = 540, 1000
+            center_x, center_y = 540, 1060
             is_revealed = (f >= 576)
 
             if not is_revealed:
@@ -178,53 +235,53 @@ class KidsVideoEngine:
             img_pil = Image.fromarray(cv2.cvtColor(bg, cv2.COLOR_BGR2RGB))
             draw = ImageDraw.Draw(img_pil, "RGBA")
 
-            # Header Banner
+            # Header Banner (Positioned in YouTube Safe Zone below top controls: cy=285)
             header_bounce = int(8 * math.sin(f * 0.1))
-            self._draw_pill_card(draw, header_title, FONT_TITLE, cy=210 + header_bounce,
+            self._draw_pill_card(draw, header_title, FONT_TITLE, cy=285 + header_bounce,
                                  bg_color=(255, 190, 0), border_color=(255, 255, 255), text_color=(40, 20, 0))
 
             if f < 180:
-                self._draw_pill_card(draw, "Can you guess who it is?", FONT_SUB, cy=330,
+                self._draw_pill_card(draw, "Can you guess who it is?", FONT_SUB, cy=405,
                                      bg_color=(255, 255, 255), border_color=(255, 180, 0), text_color=(50, 50, 50))
                 qm_bounce = int(12 * math.sin(f * 0.2))
-                self._draw_circular_badge(draw, "?", FONT_COUNTDOWN, cx=540, cy=960 + qm_bounce,
+                self._draw_circular_badge(draw, "?", FONT_COUNTDOWN, cx=540, cy=1040 + qm_bounce,
                                           radius=120, bg_color=(255, 60, 60))
 
             elif 180 <= f < 300:
                 slide1 = max(0, int(1200 * (1.0 - (f - 180) / 15.0)))
-                self._draw_pill_card(draw, clue1_text, FONT_CLUE, cy=350,
-                                     bg_color=(255, 255, 255), border_color=(255, 120, 0), text_color=(200, 80, 0),
-                                     slide_offset=-slide1)
+                self._draw_multiline_pill_card(draw, clue1_text, FONT_CLUE, cy=415,
+                                               bg_color=(255, 255, 255), border_color=(255, 120, 0), text_color=(200, 80, 0),
+                                               slide_offset=-slide1)
 
             elif 300 <= f < 420:
-                self._draw_pill_card(draw, clue1_text, FONT_CLUE, cy=340,
-                                     bg_color=(255, 255, 255), border_color=(255, 120, 0), text_color=(200, 80, 0))
+                self._draw_multiline_pill_card(draw, clue1_text, FONT_CLUE, cy=400,
+                                               bg_color=(255, 255, 255), border_color=(255, 120, 0), text_color=(200, 80, 0))
                 slide2 = max(0, int(1200 * (1.0 - (f - 300) / 15.0)))
-                self._draw_pill_card(draw, clue2_text, FONT_CLUE, cy=450,
-                                     bg_color=(255, 240, 200), border_color=(255, 180, 0), text_color=(160, 70, 0),
-                                     slide_offset=slide2)
+                self._draw_multiline_pill_card(draw, clue2_text, FONT_CLUE, cy=520,
+                                               bg_color=(255, 240, 200), border_color=(255, 180, 0), text_color=(160, 70, 0),
+                                               slide_offset=slide2)
 
             elif 420 <= f < 576:
                 countdown_val = max(1, 5 - int((f - 420) / 31))
-                self._draw_pill_card(draw, "COUNTDOWN TIME!", FONT_SUB, cy=340,
+                self._draw_pill_card(draw, "COUNTDOWN TIME!", FONT_SUB, cy=405,
                                      bg_color=(255, 255, 255), border_color=(255, 60, 60), text_color=(220, 30, 30))
                 cd_bounce = int(12 * abs(math.sin(f * 0.3)))
                 cd_colors = [(255, 60, 60), (255, 120, 0), (255, 200, 0), (0, 200, 255), (100, 240, 60)]
                 self._draw_circular_badge(draw, str(countdown_val), FONT_COUNTDOWN,
-                                          cx=540, cy=960 - cd_bounce, radius=130,
+                                          cx=540, cy=1040 - cd_bounce, radius=130,
                                           bg_color=cd_colors[countdown_val - 1])
 
             elif 576 <= f < 795:
-                self._draw_pill_card(draw, reveal_title, FONT_TITLE, cy=360,
+                self._draw_pill_card(draw, reveal_title, FONT_TITLE, cy=410,
                                      bg_color=(255, 60, 100), border_color=(255, 255, 255), text_color=(255, 255, 255))
-                self._draw_pill_card(draw, quiz_pkg.get("fun_fact", "Super Smart Explorer!"), FONT_CLUE, cy=480,
-                                     bg_color=(255, 255, 255), border_color=(255, 190, 0), text_color=(200, 100, 0))
+                self._draw_multiline_pill_card(draw, quiz_pkg.get("fun_fact", "Super Smart Explorer!"), FONT_CLUE, cy=535,
+                                               bg_color=(255, 255, 255), border_color=(255, 190, 0), text_color=(200, 100, 0))
 
             else:
-                self._draw_pill_card(draw, "Did you guess it right?", FONT_SUB, cy=350,
+                self._draw_pill_card(draw, "Did you guess it right?", FONT_SUB, cy=405,
                                      bg_color=(255, 255, 255), border_color=(0, 200, 255), text_color=(0, 120, 200))
                 sub_pulse = int(6 * math.sin(f * 0.2))
-                self._draw_pill_card(draw, "SUBSCRIBE FOR DAILY GAMES!", FONT_CTA, cy=1620 + sub_pulse,
+                self._draw_pill_card(draw, "SUBSCRIBE FOR DAILY GAMES!", FONT_CTA, cy=1540 + sub_pulse,
                                      bg_color=(255, 40, 60), border_color=(255, 255, 255), text_color=(255, 255, 255))
 
             final_frame = cv2.cvtColor(np.array(img_pil), cv2.COLOR_RGB2BGR)

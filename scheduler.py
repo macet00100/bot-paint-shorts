@@ -78,7 +78,7 @@ def run_pipeline(trigger_time="MANUAL", target_topic=None, enable_upload=False):
         if enable_upload:
             print("\n--- STEP 6: MULTI-PLATFORM AUTO UPLOAD ---")
             uploader = AutoUploader()
-            video_title = f"Can You Guess This {quiz_pkg.get('category', 'Animal').capitalize()} in 5 Seconds? 🐾 #shorts"
+            video_title = f"Can You Guess This {quiz_pkg.get('category', 'Animal').rstrip('s').capitalize()} in 5 Seconds? 🐾 #shorts"
             short_caption = (
                 f"Can you guess the mystery {quiz_pkg.get('category', 'animal')}? "
                 f"Tell me in the comments! 👇 Subscribe for daily fun quizzes! #kids #quiz #shorts"
