@@ -20,6 +20,7 @@ def main():
     parser = argparse.ArgumentParser(description="Kids Mystery Guessing Game Automated Video Bot")
     parser.add_argument("--run-now", action="store_true", help="Select unique topic and create 1 video immediately")
     parser.add_argument("--start-scheduler", action="store_true", help="Start the 24/7 background scheduler")
+    parser.add_argument("--boot-run", action="store_true", help="When starting scheduler, generate 1 video immediately on boot")
     parser.add_argument("--topic", "--object", type=str, dest="topic", help="Specify topic ID (e.g. 'baby_panda', 'baby_elephant', 'baby_trex')")
     parser.add_argument("--upload", action="store_true", help="Enable live auto-upload to YouTube Shorts, TikTok, Facebook Reels")
 
@@ -29,7 +30,7 @@ def main():
         print("[*] Immediate Kids Mystery Video requested...")
         run_pipeline(trigger_time="MANUAL_CLI", enable_upload=args.upload)
     elif args.start_scheduler:
-        start_scheduler()
+        start_scheduler(enable_upload=args.upload, run_immediately=args.boot_run)
     elif args.topic:
         print(f"[*] Custom quiz topic requested: '{args.topic}'")
         run_pipeline(trigger_time="MANUAL_TOPIC", target_topic=args.topic, enable_upload=args.upload)

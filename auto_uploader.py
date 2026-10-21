@@ -68,7 +68,7 @@ class AutoUploader:
             body = {
                 "snippet": {
                     "title": yt_title[:100],
-                    "description": f"{description}\n\n#shorts #mspaint #drawing",
+                    "description": f"{description}\n\n#shorts #kids #quiz #animation",
                     "tags": tags or ["shorts", "mspaint", "art", "drawing"],
                     "categoryId": "24"  # Entertainment / Art
                 },

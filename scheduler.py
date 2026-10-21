@@ -113,12 +113,17 @@ def run_pipeline(trigger_time="MANUAL", target_topic=None, enable_upload=False):
         return None
 
 
-def start_scheduler():
+def start_scheduler(enable_upload=True, run_immediately=False):
     """Runs 24/7 background scheduler posting at configured times."""
+    if run_immediately:
+        print("[*] Generating immediate video on scheduler boot...")
+        run_pipeline(trigger_time="BOOT_INIT", enable_upload=enable_upload)
+
     scheduler = BlockingScheduler()
     print("\n" + "=" * 60)
     print("[*] STARTING 24/7 KIDS VIDEO BOT BACKGROUND SCHEDULER")
     print(f"[*] Posting Schedule (Local Time): {SCHEDULE_TIMES}")
+    print(f"[*] Auto-Upload Mode: {'LIVE AUTO-UPLOAD' if enable_upload else 'LOCAL SAFE PREVIEW'}")
     print("=" * 60)
 
     for st in SCHEDULE_TIMES:
@@ -128,7 +133,7 @@ def start_scheduler():
             "cron",
             hour=int(h),
             minute=int(m),
-            kwargs={"trigger_time": f"CRON_{st}", "enable_upload": True},
+            kwargs={"trigger_time": f"CRON_{st}", "enable_upload": enable_upload},
             id=f"job_{st}"
         )
         print(f"[+] Scheduled daily run at {st}")
