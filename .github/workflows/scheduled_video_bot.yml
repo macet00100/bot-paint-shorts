@@ -38,7 +38,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          playwright install --with-deps chromium
 
       - name: Setup Cloud Credentials
         env:
@@ -46,7 +45,6 @@ jobs:
           YOUTUBE_TOKEN_BASE64: ${{ secrets.YOUTUBE_TOKEN_BASE64 }}
           FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
           FB_ACCESS_TOKEN: ${{ secrets.FB_ACCESS_TOKEN }}
-          TIKTOK_SESSION_COOKIE: ${{ secrets.TIKTOK_SESSION_COOKIE }}
         run: |
           if [ -n "$YOUTUBE_CLIENT_SECRET_BASE64" ]; then
             echo "$YOUTUBE_CLIENT_SECRET_BASE64" | base64 -d > client_secret.json
@@ -59,12 +57,11 @@ jobs:
         env:
           FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
           FB_ACCESS_TOKEN: ${{ secrets.FB_ACCESS_TOKEN }}
-          TIKTOK_SESSION_COOKIE: ${{ secrets.TIKTOK_SESSION_COOKIE }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           # If social credentials exist, publish with --upload; otherwise local render preview
-          if [ -n "$FB_ACCESS_TOKEN" ] || [ -f "youtube_token.json" ] || [ -n "$TIKTOK_SESSION_COOKIE" ]; then
+          if [ -n "$FB_ACCESS_TOKEN" ] || [ -f "youtube_token.json" ]; then
             python main.py --run-now --upload
           else
             python main.py --run-now
@@ -83,7 +80,5 @@ jobs:
         if: always()
         with:
           name: latest-kids-video
-          path: |
-            output/*.mp4
-            tiktok_*.png
+          path: output/*.mp4
           retention-days: 2 # Keeps cloud disk 100% clean and free

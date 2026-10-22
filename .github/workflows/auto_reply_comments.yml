@@ -48,7 +48,6 @@ jobs:
         env:
           FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
           FB_ACCESS_TOKEN: ${{ secrets.FB_ACCESS_TOKEN }}
-          TIKTOK_SESSION_COOKIE: ${{ secrets.TIKTOK_SESSION_COOKIE }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           python auto_community.py --scan-now

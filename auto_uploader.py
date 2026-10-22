@@ -293,8 +293,9 @@ class AutoUploader:
         # 2. Facebook
         results["facebook"] = self.upload_to_facebook_reels(video_path, f"{title}\n{description}")
         
-        # 3. TikTok
-        results["tiktok"] = self.upload_to_tiktok(video_path, f"{title} {description}")
+        # 3. TikTok (Disabled - Focusing 100% on YouTube Shorts & Facebook Reels)
+        # results["tiktok"] = self.upload_to_tiktok(video_path, f"{title} {description}")
+        results["tiktok"] = {"platform": "TikTok", "status": "SKIPPED", "message": "Disabled per user preference"}
 
         # Trigger Instant Community Engagement (Auto-Like & First Comment)
         try:

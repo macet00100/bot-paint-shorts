@@ -207,8 +207,8 @@ class CommunityManager:
         if fb_id:
             self._engage_facebook_initial(fb_id, topic_name)
 
-        # 3. TikTok
-        self._engage_tiktok_initial(topic_name)
+        # 3. TikTok (Disabled per user preference)
+        # self._engage_tiktok_initial(topic_name)
 
     def _engage_youtube_initial(self, video_id: str, topic_name: str):
         youtube = get_youtube_client()
@@ -292,12 +292,12 @@ class CommunityManager:
     # =========================================================
 
     def run_auto_reply_cycle(self):
-        """Scans YouTube, Facebook & TikTok for new unreplied comments and replies via Gemini AI."""
+        """Scans YouTube & Facebook for new unreplied comments and replies via Gemini AI."""
         print(f"\n[*] [COMMUNITY ENGINE] Starting 15-minute comment scan at {time.strftime('%Y-%m-%d %H:%M:%S')}...")
         new_replies_count = 0
         new_replies_count += self.reply_youtube_comments()
         new_replies_count += self.reply_facebook_comments()
-        new_replies_count += self.reply_tiktok_comments()
+        # new_replies_count += self.reply_tiktok_comments()
         self._save_replies_history()
 
         if new_replies_count > 0:
