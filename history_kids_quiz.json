@@ -68,5 +68,15 @@
       "CLUE 1: A smooth green protective shell!",
       "CLUE 2: I love swimming across the deep ocean!"
     ]
+  },
+  {
+    "topic_id": "baby_giraffe",
+    "name": "Baby Giraffe",
+    "category": "animals",
+    "completed_at": "2026-10-22 03:46:23",
+    "clues": [
+      "CLUE 1: Golden spots all over my body!",
+      "CLUE 2: The tallest neck in the world!"
+    ]
   }
 ]
