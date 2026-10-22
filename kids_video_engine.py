@@ -33,13 +33,27 @@ TOTAL_SAMPLES = int(SAMPLE_RATE * TOTAL_DURATION)
 FONT_PATH = "C:/Windows/Fonts/comicbd.ttf"
 # Fallback font for Linux / GitHub Actions
 if not Path(FONT_PATH).exists():
-    FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+    for candidate in [
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+        "/usr/share/fonts/dejavu/DejaVuSans-Bold.ttf",
+    ]:
+        if Path(candidate).exists():
+            FONT_PATH = candidate
+            break
 
-FONT_TITLE = ImageFont.truetype(FONT_PATH, 74)
-FONT_SUB = ImageFont.truetype(FONT_PATH, 48)
-FONT_CLUE = ImageFont.truetype(FONT_PATH, 42)
-FONT_COUNTDOWN = ImageFont.truetype(FONT_PATH, 160)
-FONT_CTA = ImageFont.truetype(FONT_PATH, 48)
+try:
+    FONT_TITLE = ImageFont.truetype(FONT_PATH, 74)
+    FONT_SUB = ImageFont.truetype(FONT_PATH, 48)
+    FONT_CLUE = ImageFont.truetype(FONT_PATH, 42)
+    FONT_COUNTDOWN = ImageFont.truetype(FONT_PATH, 160)
+    FONT_CTA = ImageFont.truetype(FONT_PATH, 48)
+except Exception:
+    FONT_TITLE = ImageFont.load_default()
+    FONT_SUB = ImageFont.load_default()
+    FONT_CLUE = ImageFont.load_default()
+    FONT_COUNTDOWN = ImageFont.load_default()
+    FONT_CTA = ImageFont.load_default()
 
 
 class KidsVideoEngine:
