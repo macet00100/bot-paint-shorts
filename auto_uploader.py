@@ -43,7 +43,10 @@ class AutoUploader:
             from google_auth_oauthlib.flow import InstalledAppFlow
             from google.auth.transport.requests import Request
 
-            SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
+            SCOPES = [
+                "https://www.googleapis.com/auth/youtube.upload",
+                "https://www.googleapis.com/auth/youtube.force-ssl"
+            ]
             creds = None
 
             if os.path.exists(YOUTUBE_TOKEN_FILE):
@@ -161,7 +164,8 @@ class AutoUploader:
                     "args": [
                         "--disable-blink-features=AutomationControlled",
                         "--no-sandbox",
-                        "--disable-dev-shm-usage"
+                        "--disable-dev-shm-usage",
+                        "--disable-web-security"
                     ]
                 }
                 edge_path = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
@@ -173,33 +177,52 @@ class AutoUploader:
                     user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
                     viewport={"width": 1920, "height": 1080}
                 )
+                # Stealth: hide webdriver flag
+                context.add_init_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined});")
+
                 # Inject sessionid and sessionid_ss cookies
                 context.add_cookies([
                     {
                         "name": "sessionid",
                         "value": TIKTOK_SESSION_COOKIE,
                         "domain": ".tiktok.com",
-                        "path": "/"
+                        "path": "/",
+                        "secure": True,
+                        "httpOnly": True
                     },
                     {
                         "name": "sessionid_ss",
                         "value": TIKTOK_SESSION_COOKIE,
                         "domain": ".tiktok.com",
-                        "path": "/"
+                        "path": "/",
+                        "secure": True,
+                        "httpOnly": True
                     }
                 ])
                 page = context.new_page()
                 studio_url = "https://www.tiktok.com/tiktokstudio/upload?from=upload"
                 print(f"[*] Navigating to {studio_url}...")
                 page.goto(studio_url, timeout=60000)
-                time.sleep(5)
+                time.sleep(6)
+
+                print(f"[*] TikTok page loaded. Current URL: {page.url} | Title: {page.title()}")
 
                 # 1. Wait for attached file input (hidden by design in modern CSS)
                 print("[*] Waiting for upload file input...")
-                page.wait_for_selector("input[type='file']", state="attached", timeout=45000)
+                try:
+                    page.wait_for_selector("input[type='file']", state="attached", timeout=45000)
+                except Exception as te:
+                    print(f"[!] Timeout waiting for file input on TikTok. Current URL: {page.url}")
+                    try:
+                        page.screenshot(path="tiktok_upload_error.png")
+                        print("[+] Saved debug screenshot to tiktok_upload_error.png")
+                    except Exception:
+                        pass
+                    raise te
+
                 page.set_input_files("input[type='file']", str(video_path))
                 print("[+] Video file attached to TikTok Studio. Waiting for video processing...")
-                time.sleep(12)
+                time.sleep(15)
 
                 # 2. Dismiss Joyride onboarding tour / modal
                 dismiss = page.locator('button:has-text("Đã hiểu"), button:has-text("Got it"), button[aria-label="Skip"], button[aria-label="Close"]')
@@ -223,7 +246,7 @@ class AutoUploader:
                 time.sleep(3)
 
                 # 4. Click Post button
-                post_btn = page.locator('button[data-e2e="post_video_button"], button.Button__root--type-primary:has-text("Đăng"), button.Button__root--type-primary:has-text("Post")')
+                post_btn = page.locator('button[data-e2e="post_video_button"], button:has-text("Post"), button:has-text("Đăng")')
                 if post_btn.count() > 0:
                     try:
                         post_btn.first.scroll_into_view_if_needed()
@@ -232,12 +255,12 @@ class AutoUploader:
                     except Exception as be:
                         print(f"[-] Error clicking post button: {be}")
 
-                # 5. Handle confirmation dialog if prompted (e.g. "Đăng ngay" / "Post now")
+                # 5. Handle confirmation dialog if prompted (e.g. "Post now" / "Đăng ngay")
                 for _ in range(8):
                     time.sleep(2)
-                    dialog_confirm = page.locator('button:has-text("Đăng ngay"), button:has-text("Post now"), button:has-text("Tiếp tục đăng")')
+                    dialog_confirm = page.locator('button:has-text("Post now"), button:has-text("Đăng ngay"), button:has-text("Tiếp tục đăng")')
                     if dialog_confirm.count() > 0:
-                        print("[+] Confirmed post dialog ('Đăng ngay')!")
+                        print("[+] Confirmed post dialog ('Post now')!")
                         dialog_confirm.first.click()
                         time.sleep(5)
                         break

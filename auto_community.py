@@ -125,6 +125,32 @@ class GeminiAIEngine:
             return f"Thank you so much for watching, {author_name}! ❤️ Make sure to like & subscribe for tomorrow's mystery quiz! 🥰🍿"
 
 
+def get_youtube_client():
+    """Returns an authenticated and automatically refreshed YouTube v3 service with force-ssl."""
+    from config import YOUTUBE_TOKEN_FILE
+    if not os.path.exists(YOUTUBE_TOKEN_FILE):
+        return None
+
+    try:
+        from google.oauth2.credentials import Credentials
+        from google.auth.transport.requests import Request
+        from googleapiclient.discovery import build
+
+        SCOPES = [
+            "https://www.googleapis.com/auth/youtube.upload",
+            "https://www.googleapis.com/auth/youtube.force-ssl"
+        ]
+        creds = Credentials.from_authorized_user_file(YOUTUBE_TOKEN_FILE, SCOPES)
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+            with open(YOUTUBE_TOKEN_FILE, "w", encoding="utf-8") as f:
+                f.write(creds.to_json())
+        return build("youtube", "v3", credentials=creds)
+    except Exception as e:
+        print(f"[!] get_youtube_client error: {e}")
+        return None
+
+
 class CommunityManager:
     def __init__(self):
         self.replies_history = self._load_replies_history()
@@ -185,17 +211,12 @@ class CommunityManager:
         self._engage_tiktok_initial(topic_name)
 
     def _engage_youtube_initial(self, video_id: str, topic_name: str):
-        from config import YOUTUBE_TOKEN_FILE
-        if not os.path.exists(YOUTUBE_TOKEN_FILE):
+        youtube = get_youtube_client()
+        if not youtube:
+            print("[!] YouTube client not available for initial engagement.")
             return
 
         try:
-            from google.oauth2.credentials import Credentials
-            from googleapiclient.discovery import build
-
-            creds = Credentials.from_authorized_user_file(YOUTUBE_TOKEN_FILE)
-            youtube = build("youtube", "v3", credentials=creds)
-
             # Auto-like
             try:
                 youtube.videos().rate(id=video_id, rating="like").execute()
@@ -287,18 +308,12 @@ class CommunityManager:
 
     def reply_youtube_comments(self) -> int:
         """Smart filter & Gemini reply for YouTube Shorts."""
-        from config import YOUTUBE_TOKEN_FILE
-        if not os.path.exists(YOUTUBE_TOKEN_FILE):
+        youtube = get_youtube_client()
+        if not youtube:
             return 0
 
         replies_sent = 0
         try:
-            from google.oauth2.credentials import Credentials
-            from googleapiclient.discovery import build
-
-            creds = Credentials.from_authorized_user_file(YOUTUBE_TOKEN_FILE)
-            youtube = build("youtube", "v3", credentials=creds)
-
             # Get my channel info to filter out myself
             channels_resp = youtube.channels().list(mine=True, part="snippet,contentDetails").execute()
             items = channels_resp.get("items", [])

@@ -60,6 +60,8 @@ jobs:
           FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
           FB_ACCESS_TOKEN: ${{ secrets.FB_ACCESS_TOKEN }}
           TIKTOK_SESSION_COOKIE: ${{ secrets.TIKTOK_SESSION_COOKIE }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           # If social credentials exist, publish with --upload; otherwise local render preview
           if [ -n "$FB_ACCESS_TOKEN" ] || [ -f "youtube_token.json" ] || [ -n "$TIKTOK_SESSION_COOKIE" ]; then
@@ -68,11 +70,11 @@ jobs:
             python main.py --run-now
           fi
 
-      - name: Commit Updated Quiz History (Anti-Duplication)
+      - name: Commit Updated Quiz History & Engagement
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add history_kids_quiz.json assets/kids_characters/
+          git add history_kids_quiz.json history_comment_replies.json assets/kids_characters/
           git commit -m "chore: record newly generated quiz to history [skip ci]" || echo "No history changes to commit"
           git push origin main || echo "Push skipped"
 
@@ -81,5 +83,7 @@ jobs:
         if: always()
         with:
           name: latest-kids-video
-          path: output/*.mp4
+          path: |
+            output/*.mp4
+            tiktok_*.png
           retention-days: 2 # Keeps cloud disk 100% clean and free
