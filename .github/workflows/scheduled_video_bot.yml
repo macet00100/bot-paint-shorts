@@ -2,12 +2,12 @@ name: Kids Mystery Quiz Video Bot 24/7 Cloud
 
 on:
   schedule:
-    # 4 Viral International Time Slots (converted to UTC):
-    # 03:00 AM VN = 20:00 UTC (04:00 PM US EDT - Kids After-School Rush)
-    # 07:00 AM VN = 00:00 UTC (08:00 PM US EDT - Prime Time Evening Scroll)
-    # 07:00 PM VN = 12:00 UTC (08:00 AM US EDT - Morning commute / Europe afternoon)
-    # 11:00 PM VN = 16:00 UTC (12:00 PM US EDT - Midday lunch break peak)
-    - cron: '0 0,12,16,20 * * *'
+    # 4 Viral International Time Slots (converted to UTC, run at minute 15 to avoid GitHub hourly queue spikes):
+    # 03:15 AM VN = 20:15 UTC (04:15 PM US EDT - Kids After-School Rush)
+    # 07:15 AM VN = 00:15 UTC (08:15 PM US EDT - Prime Time Evening Scroll)
+    # 07:15 PM VN = 12:15 UTC (08:15 AM US EDT - Morning commute / Europe afternoon)
+    # 11:15 PM VN = 16:15 UTC (12:15 PM US EDT - Midday lunch break peak)
+    - cron: '15 0,12,16,20 * * *'
   workflow_dispatch: # Allows manual 1-click trigger from GitHub Actions tab anytime
 
 permissions:
