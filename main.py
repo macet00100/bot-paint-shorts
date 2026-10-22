@@ -16,9 +16,40 @@ if sys.stderr and hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8", line_buffering=True)
 
 
+def check_slot_already_satisfied(min_interval_minutes=90):
+    """
+    Checks history_kids_quiz.json to see if a video was published recently.
+    Prevents duplicate videos if backup cron fires after primary cron succeeds.
+    """
+    from config import BASE_DIR
+    import json
+    import datetime
+    history_file = BASE_DIR / "history_kids_quiz.json"
+    if not history_file.exists():
+        return False
+    try:
+        with open(history_file, "r", encoding="utf-8") as f:
+            items = json.load(f)
+        if not items:
+            return False
+        latest = items[-1]
+        completed_at_str = latest.get("completed_at")
+        if not completed_at_str:
+            return False
+        completed_at = datetime.datetime.strptime(completed_at_str, "%Y-%m-%d %H:%M:%S")
+        elapsed = (datetime.datetime.utcnow() - completed_at).total_seconds() / 60.0
+        if elapsed < min_interval_minutes:
+            print(f"[*] Recent video '{latest.get('name')}' published {int(elapsed)} mins ago (< {min_interval_minutes}m). Slot already satisfied. Skipping duplicate run.")
+            return True
+    except Exception as e:
+        print(f"[!] Slot check notice: {e}")
+    return False
+
+
 def main():
     parser = argparse.ArgumentParser(description="Kids Mystery Guessing Game Automated Video Bot")
     parser.add_argument("--run-now", action="store_true", help="Select unique topic and create 1 video immediately")
+    parser.add_argument("--check-freshness", action="store_true", help="Skip run if a video was already published within the last 90 minutes")
     parser.add_argument("--start-scheduler", action="store_true", help="Start the 24/7 background scheduler")
     parser.add_argument("--boot-run", action="store_true", help="When starting scheduler, generate 1 video immediately on boot")
     parser.add_argument("--topic", "--object", type=str, dest="topic", help="Specify topic ID (e.g. 'baby_panda', 'baby_elephant', 'baby_trex')")
@@ -27,6 +58,9 @@ def main():
     args = parser.parse_args()
 
     if args.run_now:
+        if args.check_freshness and check_slot_already_satisfied(min_interval_minutes=90):
+            print("[+] Slot already satisfied by previous run. Exiting cleanly.")
+            return
         print("[*] Immediate Kids Mystery Video requested...")
         run_pipeline(trigger_time="MANUAL_CLI", enable_upload=args.upload)
     elif args.start_scheduler:
