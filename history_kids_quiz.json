@@ -78,5 +78,15 @@
       "CLUE 1: Golden spots all over my body!",
       "CLUE 2: The tallest neck in the world!"
     ]
+  },
+  {
+    "topic_id": "baby_triceratops",
+    "name": "Baby Triceratops",
+    "category": "dinosaurs",
+    "completed_at": "2026-10-22 16:54:50",
+    "clues": [
+      "CLUE 1: Three cute horns on my head!",
+      "CLUE 2: A big protective shield frill!"
+    ]
   }
 ]
