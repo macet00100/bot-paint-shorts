@@ -88,5 +88,15 @@
       "CLUE 1: Three cute horns on my head!",
       "CLUE 2: A big protective shield frill!"
     ]
+  },
+  {
+    "topic_id": "space_rocket",
+    "name": "Space Rocket",
+    "category": "vehicles",
+    "completed_at": "2026-10-22 21:44:04",
+    "clues": [
+      "CLUE 1: Shiny white body and red wings!",
+      "CLUE 2: 3-2-1 Blast off to the Moon and stars!"
+    ]
   }
 ]
