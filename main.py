@@ -66,8 +66,9 @@ def main():
         if args.upload:
             try:
                 print("[*] Checking and replying to audience comments...")
-                from auto_community import scan_and_reply_all
-                scan_and_reply_all()
+                from auto_community import CommunityManager
+                cm = CommunityManager()
+                cm.run_auto_reply_cycle()
             except Exception as ce:
                 print(f"[!] Community auto-reply notice: {ce}")
     elif args.start_scheduler:

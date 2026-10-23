@@ -36,6 +36,11 @@ jobs:
           python-version: '3.12'
           cache: 'pip'
 
+      - name: Setup FFmpeg (Instant Static Binary)
+        uses: FedericoCarboni/setup-ffmpeg@v3
+        with:
+          ffmpeg-version: release
+
       - name: Install Python Dependencies
         run: |
           python -m pip install --upgrade pip
