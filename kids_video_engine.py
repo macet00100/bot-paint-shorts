@@ -30,17 +30,13 @@ TOTAL_DURATION = 34.60
 TOTAL_FRAMES = int(FPS * TOTAL_DURATION)
 TOTAL_SAMPLES = int(SAMPLE_RATE * TOTAL_DURATION)
 
-FONT_PATH = "C:/Windows/Fonts/comicbd.ttf"
-# Fallback font for Linux / GitHub Actions
-if not Path(FONT_PATH).exists():
-    for candidate in [
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-        "/usr/share/fonts/dejavu/DejaVuSans-Bold.ttf",
-    ]:
-        if Path(candidate).exists():
-            FONT_PATH = candidate
-            break
+LOCAL_FONT = Path(__file__).resolve().parent / "assets" / "fonts" / "comicbd.ttf"
+if LOCAL_FONT.exists():
+    FONT_PATH = str(LOCAL_FONT)
+elif Path("C:/Windows/Fonts/comicbd.ttf").exists():
+    FONT_PATH = "C:/Windows/Fonts/comicbd.ttf"
+else:
+    FONT_PATH = "comicbd.ttf" 
 
 try:
     FONT_TITLE = ImageFont.truetype(FONT_PATH, 74)

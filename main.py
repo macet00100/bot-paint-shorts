@@ -63,6 +63,13 @@ def main():
             return
         print("[*] Immediate Kids Mystery Video requested...")
         run_pipeline(trigger_time="MANUAL_CLI", enable_upload=args.upload)
+        if args.upload:
+            try:
+                print("[*] Checking and replying to audience comments...")
+                from auto_community import scan_and_reply_all
+                scan_and_reply_all()
+            except Exception as ce:
+                print(f"[!] Community auto-reply notice: {ce}")
     elif args.start_scheduler:
         start_scheduler(enable_upload=args.upload, run_immediately=args.boot_run)
     elif args.topic:
