@@ -108,5 +108,15 @@
       "CLUE 1: Smooth shiny blue skin!",
       "CLUE 2: I leap high out of ocean waves!"
     ]
+  },
+  {
+    "topic_id": "baby_red_panda",
+    "name": "Baby Red Panda",
+    "category": "animals",
+    "completed_at": "2026-10-23 17:08:22",
+    "clues": [
+      "CLUE 1: Rust-red fur and a bushy ringed tail!",
+      "CLUE 2: I look like a cute little masked bear!"
+    ]
   }
 ]
