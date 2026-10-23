@@ -118,5 +118,15 @@
       "CLUE 1: Rust-red fur and a bushy ringed tail!",
       "CLUE 2: I look like a cute little masked bear!"
     ]
+  },
+  {
+    "topic_id": "baby_trex",
+    "name": "Baby T-Rex",
+    "category": "dinosaurs",
+    "completed_at": "2026-10-23 20:48:43",
+    "clues": [
+      "CLUE 1: Tiny little arms and big strong legs!",
+      "CLUE 2: The fiercest dinosaur King!"
+    ]
   }
 ]
