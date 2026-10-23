@@ -128,5 +128,15 @@
       "CLUE 1: Tiny little arms and big strong legs!",
       "CLUE 2: The fiercest dinosaur King!"
     ]
+  },
+  {
+    "topic_id": "happy_watermelon",
+    "name": "Juicy Watermelon",
+    "category": "fruits",
+    "completed_at": "2026-10-23 23:34:39",
+    "clues": [
+      "CLUE 1: Green striped rind on the outside!",
+      "CLUE 2: Sweet red juicy slice on the inside!"
+    ]
   }
 ]
