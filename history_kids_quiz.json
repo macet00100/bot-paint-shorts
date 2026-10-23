@@ -98,5 +98,15 @@
       "CLUE 1: Shiny white body and red wings!",
       "CLUE 2: 3-2-1 Blast off to the Moon and stars!"
     ]
+  },
+  {
+    "topic_id": "baby_dolphin",
+    "name": "Baby Dolphin",
+    "category": "animals",
+    "completed_at": "2026-10-23 04:49:28",
+    "clues": [
+      "CLUE 1: Smooth shiny blue skin!",
+      "CLUE 2: I leap high out of ocean waves!"
+    ]
   }
 ]
