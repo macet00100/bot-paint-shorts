@@ -178,5 +178,15 @@
       "CLUE 1: Bright red heart shape with tiny seeds!",
       "CLUE 2: A cute green leafy hat on top!"
     ]
+  },
+  {
+    "topic_id": "happy_banana_v19",
+    "name": "Golden Happy Banana",
+    "category": "fruits",
+    "completed_at": "2026-10-24 22:30:06",
+    "clues": [
+      "CLUE 1: Bright yellow curved smile shape!",
+      "CLUE 2: Peel my jacket to eat sweet fruit!"
+    ]
   }
 ]
