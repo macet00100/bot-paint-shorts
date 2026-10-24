@@ -138,5 +138,15 @@
       "CLUE 1: Green striped rind on the outside!",
       "CLUE 2: Sweet red juicy slice on the inside!"
     ]
+  },
+  {
+    "topic_id": "baby_lion",
+    "name": "Baby Lion",
+    "category": "animals",
+    "completed_at": "2026-10-24 04:37:24",
+    "clues": [
+      "CLUE 1: Golden fluffy mane!",
+      "CLUE 2: King of the Jungle!"
+    ]
   }
 ]
