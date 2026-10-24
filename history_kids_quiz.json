@@ -148,5 +148,15 @@
       "CLUE 1: Golden fluffy mane!",
       "CLUE 2: King of the Jungle!"
     ]
+  },
+  {
+    "topic_id": "happy_banana",
+    "name": "Happy Banana",
+    "category": "fruits",
+    "completed_at": "2026-10-24 12:17:20",
+    "clues": [
+      "CLUE 1: Bright yellow curved smile shape!",
+      "CLUE 2: Peel my jacket to eat sweet fruit!"
+    ]
   }
 ]
