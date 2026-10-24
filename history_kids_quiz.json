@@ -168,5 +168,15 @@
       "CLUE 1: Bright orange coat with black stripes!",
       "CLUE 2: The biggest wild cat on Earth!"
     ]
+  },
+  {
+    "topic_id": "happy_strawberry",
+    "name": "Happy Strawberry",
+    "category": "fruits",
+    "completed_at": "2026-10-24 18:50:07",
+    "clues": [
+      "CLUE 1: Bright red heart shape with tiny seeds!",
+      "CLUE 2: A cute green leafy hat on top!"
+    ]
   }
 ]
