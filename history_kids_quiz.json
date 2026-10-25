@@ -238,5 +238,15 @@
       "CLUE 1: Long soft floppy ears!",
       "CLUE 2: A twitchy pink nose and fluffy cotton tail!"
     ]
+  },
+  {
+    "topic_id": "sweet_corn",
+    "name": "Golden Sweet Corn",
+    "category": "vegetables",
+    "completed_at": "2026-10-25 22:34:34",
+    "clues": [
+      "CLUE 1: Wrapped in a green leafy jacket with silky blonde hair!",
+      "CLUE 2: Rows of sweet golden yellow kernels that can pop into popcorn!"
+    ]
   }
 ]
