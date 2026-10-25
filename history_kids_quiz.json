@@ -228,5 +228,15 @@
       "CLUE 1: Bright orange coat with black stripes!",
       "CLUE 2: The biggest wild cat on Earth!"
     ]
+  },
+  {
+    "topic_id": "baby_bunny",
+    "name": "Baby Bunny",
+    "category": "animals",
+    "completed_at": "2026-10-25 19:05:03",
+    "clues": [
+      "CLUE 1: Long soft floppy ears!",
+      "CLUE 2: A twitchy pink nose and fluffy cotton tail!"
+    ]
   }
 ]
