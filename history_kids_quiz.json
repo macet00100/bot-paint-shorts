@@ -188,5 +188,15 @@
       "CLUE 1: Bright yellow curved smile shape!",
       "CLUE 2: Peel my jacket to eat sweet fruit!"
     ]
+  },
+  {
+    "topic_id": "happy_watermelon_v20",
+    "name": "Golden Juicy Watermelon",
+    "category": "fruits",
+    "completed_at": "2026-10-25 00:18:10",
+    "clues": [
+      "CLUE 1: Green striped rind on the outside!",
+      "CLUE 2: Sweet red juicy slice on the inside!"
+    ]
   }
 ]
