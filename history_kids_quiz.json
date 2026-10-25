@@ -198,5 +198,15 @@
       "CLUE 1: Green striped rind on the outside!",
       "CLUE 2: Sweet red juicy slice on the inside!"
     ]
+  },
+  {
+    "topic_id": "baby_giraffe_v21",
+    "name": "Golden Baby Giraffe",
+    "category": "animals",
+    "completed_at": "2026-10-25 04:40:52",
+    "clues": [
+      "CLUE 1: Golden spots all over my body!",
+      "CLUE 2: The tallest neck in the world!"
+    ]
   }
 ]
