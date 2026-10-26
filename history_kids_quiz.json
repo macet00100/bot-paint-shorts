@@ -288,5 +288,15 @@
       "CLUE 1: A round squishy head with curious big eyes!",
       "CLUE 2: Eight wiggly arms covered with suction cups!"
     ]
+  },
+  {
+    "topic_id": "baby_otter",
+    "name": "Baby Sea Otter",
+    "category": "animals",
+    "completed_at": "2026-10-26 18:43:03",
+    "clues": [
+      "CLUE 1: Water-repellent fur and webbed paws!",
+      "CLUE 2: I float on my back and hold hands with friends!"
+    ]
   }
 ]
