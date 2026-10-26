@@ -278,5 +278,15 @@
       "CLUE 1: Fuzzy yellow and black velvet stripes!",
       "CLUE 2: Fluttering translucent wings making sweet honey!"
     ]
+  },
+  {
+    "topic_id": "baby_octopus",
+    "name": "Baby Octopus",
+    "category": "sea_creatures",
+    "completed_at": "2026-10-26 16:20:07",
+    "clues": [
+      "CLUE 1: A round squishy head with curious big eyes!",
+      "CLUE 2: Eight wiggly arms covered with suction cups!"
+    ]
   }
 ]
