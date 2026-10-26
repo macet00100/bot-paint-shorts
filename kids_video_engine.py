@@ -178,11 +178,25 @@ class KidsVideoEngine:
             cur_y += lh + line_spacing
 
     @staticmethod
-    def _draw_pill_card(draw, text, font, cy, bg_color, border_color, text_color, slide_offset=0):
-        bbox = font.getbbox(text)
+    def _draw_pill_card(draw, text, font, cy, bg_color, border_color, text_color, slide_offset=0, max_width=960):
+        actual_font = font
+        pad_x, pad_y = 48, 20
+        bbox = actual_font.getbbox(text)
         tw = bbox[2] - bbox[0]
+
+        # Auto-shrink font size if text exceeds safe screen boundary
+        if tw + 2 * pad_x > max_width:
+            scale_factor = (max_width - 2 * pad_x) / float(tw)
+            current_size = getattr(font, "size", 74)
+            new_size = max(36, int(current_size * scale_factor))
+            try:
+                actual_font = ImageFont.truetype(FONT_PATH, new_size)
+            except Exception:
+                actual_font = font
+            bbox = actual_font.getbbox(text)
+            tw = bbox[2] - bbox[0]
+
         th = bbox[3] - bbox[1]
-        pad_x, pad_y = 50, 22
         cx = WIDTH // 2 + slide_offset
         x1, y1 = cx - tw // 2 - pad_x, cy - th // 2 - pad_y
         x2, y2 = cx + tw // 2 + pad_x, cy + th // 2 + pad_y
@@ -191,7 +205,7 @@ class KidsVideoEngine:
         draw.rounded_rectangle([x1 + 6, y1 + 8, x2 + 6, y2 + 8], radius=r, fill=(40, 40, 40, 90))
         draw.rounded_rectangle([x1 - 4, y1 - 4, x2 + 4, y2 + 4], radius=r + 4, fill=border_color)
         draw.rounded_rectangle([x1, y1, x2, y2], radius=r, fill=bg_color)
-        draw.text((cx - tw // 2 - bbox[0], cy - th // 2 - bbox[1] - 4), text, font=font, fill=text_color)
+        draw.text((cx - tw // 2 - bbox[0], cy - th // 2 - bbox[1] - 4), text, font=actual_font, fill=text_color)
 
     @staticmethod
     def _draw_circular_badge(draw, text, font, cx, cy, radius, bg_color, border_color=(255, 255, 255), border_w=12):
