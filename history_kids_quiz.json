@@ -298,5 +298,15 @@
       "CLUE 1: Water-repellent fur and webbed paws!",
       "CLUE 2: I float on my back and hold hands with friends!"
     ]
+  },
+  {
+    "topic_id": "happy_broccoli",
+    "name": "Happy Broccoli",
+    "category": "vegetables",
+    "completed_at": "2026-10-26 20:18:13",
+    "clues": [
+      "CLUE 1: A thick crunchy stem and tiny green florets!",
+      "CLUE 2: I look like a cute miniature green tree on your plate!"
+    ]
   }
 ]
