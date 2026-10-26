@@ -258,5 +258,15 @@
       "CLUE 1: Huge knobby rear tires and an upright exhaust pipe!",
       "CLUE 2: Chugging through farm fields to help grow healthy crops!"
     ]
+  },
+  {
+    "topic_id": "baby_chameleon",
+    "name": "Colorful Chameleon",
+    "category": "animals",
+    "completed_at": "2026-10-26 04:47:39",
+    "clues": [
+      "CLUE 1: Swiveling turret eyes that look in two directions!",
+      "CLUE 2: A curled spiral tail and I change rainbow colors!"
+    ]
   }
 ]
