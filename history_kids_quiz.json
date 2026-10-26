@@ -308,5 +308,15 @@
       "CLUE 1: A thick crunchy stem and tiny green florets!",
       "CLUE 2: I look like a cute miniature green tree on your plate!"
     ]
+  },
+  {
+    "topic_id": "baby_zebra",
+    "name": "Baby Zebra",
+    "category": "animals",
+    "completed_at": "2026-10-26 23:53:16",
+    "clues": [
+      "CLUE 1: An upright spiky mane on my neck!",
+      "CLUE 2: Dazzling black and white zebra stripes!"
+    ]
   }
 ]
