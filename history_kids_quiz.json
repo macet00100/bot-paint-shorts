@@ -268,5 +268,15 @@
       "CLUE 1: Swiveling turret eyes that look in two directions!",
       "CLUE 2: A curled spiral tail and I change rainbow colors!"
     ]
+  },
+  {
+    "topic_id": "busy_honeybee",
+    "name": "Busy Honeybee",
+    "category": "insects",
+    "completed_at": "2026-10-26 12:18:19",
+    "clues": [
+      "CLUE 1: Fuzzy yellow and black velvet stripes!",
+      "CLUE 2: Fluttering translucent wings making sweet honey!"
+    ]
   }
 ]
