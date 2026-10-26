@@ -75,11 +75,11 @@ jobs:
             python main.py --run-now --check-freshness
           fi
 
-      - name: Commit Updated Quiz History & Engagement
+      - name: Commit Updated Quiz History
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add history_kids_quiz.json history_comment_replies.json assets/kids_characters/
+          git add history_kids_quiz.json assets/kids_characters/
           git commit -m "chore: record newly generated quiz to history [skip ci]" || echo "No history changes to commit"
           git push origin main || echo "Push skipped"
 

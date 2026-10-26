@@ -192,23 +192,8 @@ class CommunityManager:
     # =========================================================
 
     def on_video_published(self, platform_results: dict, topic_pkg: dict):
-        topic_name = topic_pkg.get("name", "mystery friend")
-        print("\n" + "=" * 60)
-        print(f"[*] COMMUNITY ENGINE: Engagements for '{topic_name}'")
-        print("=" * 60)
-
-        # 1. YouTube
-        yt_id = platform_results.get("youtube", {}).get("id")
-        if yt_id:
-            self._engage_youtube_initial(yt_id, topic_name)
-
-        # 2. Facebook
-        fb_id = platform_results.get("facebook", {}).get("id")
-        if fb_id:
-            self._engage_facebook_initial(fb_id, topic_name)
-
-        # 3. TikTok (Disabled per user preference)
-        # self._engage_tiktok_initial(topic_name)
+        print("[*] Auto-like and auto-comment are disabled per user preference.")
+        return
 
     def _engage_youtube_initial(self, video_id: str, topic_name: str):
         youtube = get_youtube_client()
@@ -292,19 +277,9 @@ class CommunityManager:
     # =========================================================
 
     def run_auto_reply_cycle(self):
-        """Scans YouTube & Facebook for new unreplied comments and replies via Gemini AI."""
-        print(f"\n[*] [COMMUNITY ENGINE] Starting 15-minute comment scan at {time.strftime('%Y-%m-%d %H:%M:%S')}...")
-        new_replies_count = 0
-        new_replies_count += self.reply_youtube_comments()
-        new_replies_count += self.reply_facebook_comments()
-        # new_replies_count += self.reply_tiktok_comments()
-        self._save_replies_history()
-
-        if new_replies_count > 0:
-            print(f"[+] Posted {new_replies_count} new replies! Syncing history to Git...")
-            self.sync_history_to_git()
-
-        print("[+] [COMMUNITY ENGINE] Scan complete. Standing by for next 15-min interval.\n")
+        """Auto-reply disabled per user preference."""
+        print("[*] Auto-reply is disabled per user preference.")
+        return 0
 
     def reply_youtube_comments(self) -> int:
         """Smart filter & Gemini reply for YouTube Shorts."""

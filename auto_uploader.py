@@ -297,13 +297,8 @@ class AutoUploader:
         # results["tiktok"] = self.upload_to_tiktok(video_path, f"{title} {description}")
         results["tiktok"] = {"platform": "TikTok", "status": "SKIPPED", "message": "Disabled per user preference"}
 
-        # Trigger Instant Community Engagement (Auto-Like & First Comment)
-        try:
-            from auto_community import CommunityManager
-            cm = CommunityManager()
-            cm.on_video_published(results, topic_pkg or {"name": title})
-        except Exception as e:
-            print(f"[!] Community auto-engagement notice: {e}")
+        # Auto-like and auto-comment disabled per user preference
+        print("[*] Auto-like and auto-comment are disabled.")
 
         # Save record
         meta_file = Path(video_path).with_suffix(".json")

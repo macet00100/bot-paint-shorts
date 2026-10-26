@@ -139,20 +139,6 @@ def start_scheduler(enable_upload=True, run_immediately=False):
         )
         print(f"[+] Scheduled daily run at {st}")
 
-    # 15-Minute Continuous Community Comment Scanner & AI Replier
-    try:
-        from auto_community import CommunityManager
-        cm = CommunityManager()
-        scheduler.add_job(
-            cm.run_auto_reply_cycle,
-            "interval",
-            minutes=15,
-            id="job_auto_reply_15m"
-        )
-        print("[+] Scheduled 15-Minute Community Comment Scanner & Free AI Auto-Reply")
-    except Exception as e:
-        print(f"[!] Warning: Could not schedule community auto-reply: {e}")
-
     print("[*] Scheduler is actively waiting for next trigger. Press Ctrl+C to stop.\n")
     try:
         scheduler.start()
