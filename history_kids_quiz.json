@@ -248,5 +248,15 @@
       "CLUE 1: Wrapped in a green leafy jacket with silky blonde hair!",
       "CLUE 2: Rows of sweet golden yellow kernels that can pop into popcorn!"
     ]
+  },
+  {
+    "topic_id": "farm_tractor",
+    "name": "Friendly Farm Tractor",
+    "category": "vehicles",
+    "completed_at": "2026-10-26 00:17:26",
+    "clues": [
+      "CLUE 1: Huge knobby rear tires and an upright exhaust pipe!",
+      "CLUE 2: Chugging through farm fields to help grow healthy crops!"
+    ]
   }
 ]
