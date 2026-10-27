@@ -318,5 +318,15 @@
       "CLUE 1: An upright spiky mane on my neck!",
       "CLUE 2: Dazzling black and white zebra stripes!"
     ]
+  },
+  {
+    "topic_id": "baby_hedgehog",
+    "name": "Baby Hedgehog",
+    "category": "animals",
+    "completed_at": "2026-10-27 05:04:30",
+    "clues": [
+      "CLUE 1: Tiny button nose and sweet little paws!",
+      "CLUE 2: I roll into a prickly ball when shy!"
+    ]
   }
 ]
