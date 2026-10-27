@@ -16,7 +16,7 @@ if sys.stderr and hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8", line_buffering=True)
 
 
-def check_slot_already_satisfied(min_interval_minutes=90):
+def check_slot_already_satisfied(min_interval_minutes=180):
     """
     Checks history_kids_quiz.json to see if a video was published recently.
     Prevents duplicate videos if backup cron fires after primary cron succeeds.
@@ -49,7 +49,7 @@ def check_slot_already_satisfied(min_interval_minutes=90):
 def main():
     parser = argparse.ArgumentParser(description="Kids Mystery Guessing Game Automated Video Bot")
     parser.add_argument("--run-now", action="store_true", help="Select unique topic and create 1 video immediately")
-    parser.add_argument("--check-freshness", action="store_true", help="Skip run if a video was already published within the last 90 minutes")
+    parser.add_argument("--check-freshness", action="store_true", help="Skip run if a video was already published within the last 180 minutes")
     parser.add_argument("--start-scheduler", action="store_true", help="Start the 24/7 background scheduler")
     parser.add_argument("--boot-run", action="store_true", help="When starting scheduler, generate 1 video immediately on boot")
     parser.add_argument("--topic", "--object", type=str, dest="topic", help="Specify topic ID (e.g. 'baby_panda', 'baby_elephant', 'baby_trex')")
@@ -58,7 +58,7 @@ def main():
     args = parser.parse_args()
 
     if args.run_now:
-        if args.check_freshness and check_slot_already_satisfied(min_interval_minutes=90):
+        if args.check_freshness and check_slot_already_satisfied(min_interval_minutes=180):
             print("[+] Slot already satisfied by previous run. Exiting cleanly.")
             return
         print("[*] Immediate Kids Mystery Video requested...")

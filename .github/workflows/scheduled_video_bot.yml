@@ -1,21 +1,7 @@
 name: Kids Mystery Quiz Video Bot 24/7 Cloud
 
 on:
-  schedule:
-    # 4 Golden Slots (VN Time): 03:15, 07:15, 19:15, 23:15 (UTC: 20:15, 00:15, 12:15, 16:15)
-    # Dual-Trigger Zero-Miss Architecture:
-    # - Minute :15: Primary scheduled trigger
-    # - Minute :45: Automated backup fallback trigger
-    # --check-freshness ensures that if :15 already produced a video, :45 exits cleanly in 2 seconds.
-    - cron: '15 20 * * *'  # 03:15 VN (Ca 1 - Primary)
-    - cron: '45 20 * * *'  # 03:45 VN (Ca 1 - Backup)
-    - cron: '15 0 * * *'   # 07:15 VN (Ca 2 - Primary)
-    - cron: '45 0 * * *'   # 07:45 VN (Ca 2 - Backup)
-    - cron: '15 12 * * *'  # 19:15 VN (Ca 3 - Primary)
-    - cron: '45 12 * * *'  # 19:45 VN (Ca 3 - Backup)
-    - cron: '15 16 * * *'  # 23:15 VN (Ca 4 - Primary)
-    - cron: '45 16 * * *'  # 23:45 VN (Ca 4 - Backup)
-  workflow_dispatch: # Allows manual 1-click trigger from GitHub Actions tab anytime
+  workflow_dispatch: # Triggered precisely on 4 golden slots (03:15, 07:15, 19:15, 23:15 VN) via cron-job.org API
 
 permissions:
   contents: write
