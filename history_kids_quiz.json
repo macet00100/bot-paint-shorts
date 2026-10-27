@@ -328,5 +328,15 @@
       "CLUE 1: Tiny button nose and sweet little paws!",
       "CLUE 2: I roll into a prickly ball when shy!"
     ]
+  },
+  {
+    "topic_id": "baby_orca",
+    "name": "Baby Orca",
+    "category": "sea_creatures",
+    "completed_at": "2026-10-27 12:17:29",
+    "clues": [
+      "CLUE 1: White oval patches right above my eyes!",
+      "CLUE 2: Glossy jet-black and snow-white leaping ocean king!"
+    ]
   }
 ]
