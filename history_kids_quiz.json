@@ -348,5 +348,15 @@
       "CLUE 1: Row of cheerful passenger windows and a swing-out stop sign!",
       "CLUE 2: Big yellow friendly bus taking children to school!"
     ]
+  },
+  {
+    "topic_id": "purple_grapes",
+    "name": "Bouncy Grapes",
+    "category": "fruits",
+    "completed_at": "2026-10-27 20:18:14",
+    "clues": [
+      "CLUE 1: Hanging together on a twisted green vine!",
+      "CLUE 2: A bunch of sweet juicy purple balloons you can pop in your mouth!"
+    ]
   }
 ]
