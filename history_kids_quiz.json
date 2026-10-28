@@ -358,5 +358,15 @@
       "CLUE 1: Hanging together on a twisted green vine!",
       "CLUE 2: A bunch of sweet juicy purple balloons you can pop in your mouth!"
     ]
+  },
+  {
+    "topic_id": "golden_mango",
+    "name": "Golden Mango",
+    "category": "fruits",
+    "completed_at": "2026-10-28 12:18:14",
+    "clues": [
+      "CLUE 1: A smooth teardrop shape with a sunset blush!",
+      "CLUE 2: Sweet fragrant golden pulp known as King of Fruits!"
+    ]
   }
 ]
