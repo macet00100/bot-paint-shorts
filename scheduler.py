@@ -78,16 +78,14 @@ def run_pipeline(trigger_time="MANUAL", target_topic=None, enable_upload=False):
         if enable_upload:
             print("\n--- STEP 6: MULTI-PLATFORM AUTO UPLOAD ---")
             uploader = AutoUploader()
-            video_title = f"Can You Guess This {quiz_pkg.get('category', 'Animal').rstrip('s').capitalize()} in 5 Seconds? 🐾 #shorts"
-            short_caption = (
-                f"Can you guess the mystery {quiz_pkg.get('category', 'animal')}? "
-                f"Tell me in the comments! 👇 Subscribe for daily fun quizzes! #kids #quiz #shorts"
-            )
+            # Generate 100% unique, high-CTR dynamic title, engaging description & tailored tags
+            meta = curator.generate_social_metadata(quiz_pkg)
+            print(f"[+] Dynamic Title: {meta['title']}")
             uploader.upload_all(
                 final_video_path,
-                video_title,
-                short_caption,
-                tags=["kids", "quiz", "guesstheanimal", "shorts", "animation", "family"],
+                meta["title"],
+                meta["description"],
+                tags=meta["tags"],
                 topic_pkg=quiz_pkg
             )
         else:

@@ -68,12 +68,18 @@ class AutoUploader:
 
             # Ensure #shorts is in the title
             yt_title = title if "#shorts" in title.lower() else f"{title} #shorts"
+            
+            # Clean description without duplicate #shorts tags
+            desc_clean = description.strip()
+            if "#shorts" not in desc_clean.lower():
+                desc_clean = f"{desc_clean}\n\n#shorts #kids #quiz #animation"
+
             body = {
                 "snippet": {
                     "title": yt_title[:100],
-                    "description": f"{description}\n\n#shorts #kids #quiz #animation",
-                    "tags": tags or ["shorts", "mspaint", "art", "drawing"],
-                    "categoryId": "24"  # Entertainment / Art
+                    "description": desc_clean,
+                    "tags": tags or ["shorts", "kids quiz", "guessing game", "animation", "family friendly"],
+                    "categoryId": "24"  # Entertainment / Family Animation
                 },
                 "status": {
                     "privacyStatus": "public",
