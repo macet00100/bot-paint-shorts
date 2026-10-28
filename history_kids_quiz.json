@@ -378,5 +378,15 @@
       "CLUE 1: Stalk eyes that swivel in all directions!",
       "CLUE 2: Two friendly clicking claws and I walk sideways!"
     ]
+  },
+  {
+    "topic_id": "baby_blue_whale",
+    "name": "Baby Blue Whale",
+    "category": "sea_creatures",
+    "completed_at": "2026-10-28 20:18:21",
+    "clues": [
+      "CLUE 1: A giant heart the size of a small car!",
+      "CLUE 2: I spout misty water rainbows from my blowhole!"
+    ]
   }
 ]
