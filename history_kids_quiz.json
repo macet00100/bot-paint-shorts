@@ -368,5 +368,15 @@
       "CLUE 1: A smooth teardrop shape with a sunset blush!",
       "CLUE 2: Sweet fragrant golden pulp known as King of Fruits!"
     ]
+  },
+  {
+    "topic_id": "baby_crab",
+    "name": "Cheerful Crab",
+    "category": "sea_creatures",
+    "completed_at": "2026-10-28 16:17:35",
+    "clues": [
+      "CLUE 1: Stalk eyes that swivel in all directions!",
+      "CLUE 2: Two friendly clicking claws and I walk sideways!"
+    ]
   }
 ]
