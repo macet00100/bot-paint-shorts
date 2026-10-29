@@ -398,5 +398,15 @@
       "CLUE 1: Strong bouncy hind legs and big paws!",
       "CLUE 2: I love riding in my mommy's pouch!"
     ]
+  },
+  {
+    "topic_id": "sweet_cherries",
+    "name": "Twin Cherries",
+    "category": "fruits",
+    "completed_at": "2026-10-29 12:18:10",
+    "clues": [
+      "CLUE 1: Glossy crimson red spheres hanging in pairs!",
+      "CLUE 2: Two fruit best friends connected by one green stem!"
+    ]
   }
 ]
