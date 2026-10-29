@@ -418,5 +418,15 @@
       "CLUE 1: Bright glowing golden-amber eyes!",
       "CLUE 2: A super long black and white striped ringed tail!"
     ]
+  },
+  {
+    "topic_id": "baby_hippo",
+    "name": "Baby Hippo",
+    "category": "animals",
+    "completed_at": "2026-10-29 20:18:06",
+    "clues": [
+      "CLUE 1: Chubby round belly and tiny ears!",
+      "CLUE 2: I love splashing in warm river water and mud!"
+    ]
   }
 ]
