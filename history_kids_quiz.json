@@ -408,5 +408,15 @@
       "CLUE 1: Glossy crimson red spheres hanging in pairs!",
       "CLUE 2: Two fruit best friends connected by one green stem!"
     ]
+  },
+  {
+    "topic_id": "baby_lemur",
+    "name": "Ring-Tailed Lemur",
+    "category": "animals",
+    "completed_at": "2026-10-29 16:18:09",
+    "clues": [
+      "CLUE 1: Bright glowing golden-amber eyes!",
+      "CLUE 2: A super long black and white striped ringed tail!"
+    ]
   }
 ]
