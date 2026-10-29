@@ -388,5 +388,15 @@
       "CLUE 1: A giant heart the size of a small car!",
       "CLUE 2: I spout misty water rainbows from my blowhole!"
     ]
+  },
+  {
+    "topic_id": "baby_kangaroo",
+    "name": "Baby Kangaroo",
+    "category": "animals",
+    "completed_at": "2026-10-29 00:18:03",
+    "clues": [
+      "CLUE 1: Strong bouncy hind legs and big paws!",
+      "CLUE 2: I love riding in my mommy's pouch!"
+    ]
   }
 ]
