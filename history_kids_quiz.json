@@ -448,5 +448,15 @@
       "CLUE 1: Bright orange body with crisp white stripes!",
       "CLUE 2: I live safely inside tickly sea anemone tentacles!"
     ]
+  },
+  {
+    "topic_id": "crisp_apple",
+    "name": "Shiny Red Apple",
+    "category": "fruits",
+    "completed_at": "2026-10-30 20:18:12",
+    "clues": [
+      "CLUE 1: Crisp glossy red coat and tiny brown stem!",
+      "CLUE 2: Sweet and crunchy bite that keeps doctors away!"
+    ]
   }
 ]
