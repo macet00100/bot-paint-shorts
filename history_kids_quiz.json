@@ -428,5 +428,15 @@
       "CLUE 1: Chubby round belly and tiny ears!",
       "CLUE 2: I love splashing in warm river water and mud!"
     ]
+  },
+  {
+    "topic_id": "baby_seahorse",
+    "name": "Little Seahorse",
+    "category": "sea_creatures",
+    "completed_at": "2026-10-30 12:17:36",
+    "clues": [
+      "CLUE 1: A coronet crown on top of my head!",
+      "CLUE 2: A curled tail that anchors onto ocean coral!"
+    ]
   }
 ]
