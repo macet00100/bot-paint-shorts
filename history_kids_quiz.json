@@ -438,5 +438,15 @@
       "CLUE 1: A coronet crown on top of my head!",
       "CLUE 2: A curled tail that anchors onto ocean coral!"
     ]
+  },
+  {
+    "topic_id": "baby_clownfish",
+    "name": "Baby Clownfish",
+    "category": "sea_creatures",
+    "completed_at": "2026-10-30 16:18:11",
+    "clues": [
+      "CLUE 1: Bright orange body with crisp white stripes!",
+      "CLUE 2: I live safely inside tickly sea anemone tentacles!"
+    ]
   }
 ]
