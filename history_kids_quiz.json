@@ -488,5 +488,15 @@
       "CLUE 1: Soft velvety gray down feathers!",
       "CLUE 2: A long graceful S-curved neck gliding on calm lakes!"
     ]
+  },
+  {
+    "topic_id": "sunny_orange",
+    "name": "Sunny Orange",
+    "category": "fruits",
+    "completed_at": "2026-10-31 20:18:08",
+    "clues": [
+      "CLUE 1: A dimpled citrus peel that smells like sunshine!",
+      "CLUE 2: Full of juicy sweet wedges loaded with Vitamin C!"
+    ]
   }
 ]
