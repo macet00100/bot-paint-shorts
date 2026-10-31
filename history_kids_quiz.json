@@ -458,5 +458,15 @@
       "CLUE 1: Crisp glossy red coat and tiny brown stem!",
       "CLUE 2: Sweet and crunchy bite that keeps doctors away!"
     ]
+  },
+  {
+    "topic_id": "glowing_firefly",
+    "name": "Glowing Firefly",
+    "category": "insects",
+    "completed_at": "2026-10-31 00:17:43",
+    "clues": [
+      "CLUE 1: Gentle dark wings and curious antennae!",
+      "CLUE 2: A magical golden lantern tummy that blinks in the night!"
+    ]
   }
 ]
