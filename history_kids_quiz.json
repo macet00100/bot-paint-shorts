@@ -468,5 +468,15 @@
       "CLUE 1: Gentle dark wings and curious antennae!",
       "CLUE 2: A magical golden lantern tummy that blinks in the night!"
     ]
+  },
+  {
+    "topic_id": "baby_husky",
+    "name": "Baby Husky Puppy",
+    "category": "animals",
+    "completed_at": "2026-10-31 12:18:19",
+    "clues": [
+      "CLUE 1: Pointy wolf ears and curled furry tail!",
+      "CLUE 2: Sparkling ice-blue eyes and joyful howling!"
+    ]
   }
 ]
