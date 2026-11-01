@@ -518,5 +518,15 @@
       "CLUE 1: Four sharp defensive spikes on my tail!",
       "CLUE 2: Diamond-shaped kite plates standing along my back!"
     ]
+  },
+  {
+    "topic_id": "baby_mammoth",
+    "name": "Baby Woolly Mammoth",
+    "category": "dinosaurs",
+    "completed_at": "2026-11-01 16:18:22",
+    "clues": [
+      "CLUE 1: Long curved ivory tusks and fuzzy trunk!",
+      "CLUE 2: A thick shaggy brown woolly coat for Ice Age blizzards!"
+    ]
   }
 ]
