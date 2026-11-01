@@ -528,5 +528,15 @@
       "CLUE 1: Long curved ivory tusks and fuzzy trunk!",
       "CLUE 2: A thick shaggy brown woolly coat for Ice Age blizzards!"
     ]
+  },
+  {
+    "topic_id": "baby_fox",
+    "name": "Baby Red Fox",
+    "category": "animals",
+    "completed_at": "2026-11-01 20:17:47",
+    "clues": [
+      "CLUE 1: Pointy triangular ears and white chest!",
+      "CLUE 2: A magnificent bushy red tail with a white tip!"
+    ]
   }
 ]
