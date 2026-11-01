@@ -498,5 +498,15 @@
       "CLUE 1: A dimpled citrus peel that smells like sunshine!",
       "CLUE 2: Full of juicy sweet wedges loaded with Vitamin C!"
     ]
+  },
+  {
+    "topic_id": "baby_alpaca",
+    "name": "Baby Alpaca",
+    "category": "animals",
+    "completed_at": "2026-11-01 00:18:12",
+    "clues": [
+      "CLUE 1: Fluffy cloud-like fleece on my neck!",
+      "CLUE 2: Gentle big doe eyes and cute pointy ears!"
+    ]
   }
 ]
