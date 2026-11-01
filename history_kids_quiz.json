@@ -508,5 +508,15 @@
       "CLUE 1: Fluffy cloud-like fleece on my neck!",
       "CLUE 2: Gentle big doe eyes and cute pointy ears!"
     ]
+  },
+  {
+    "topic_id": "baby_stegosaurus",
+    "name": "Baby Stegosaurus",
+    "category": "dinosaurs",
+    "completed_at": "2026-11-01 12:18:10",
+    "clues": [
+      "CLUE 1: Four sharp defensive spikes on my tail!",
+      "CLUE 2: Diamond-shaped kite plates standing along my back!"
+    ]
   }
 ]
