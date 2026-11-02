@@ -538,5 +538,15 @@
       "CLUE 1: Pointy triangular ears and white chest!",
       "CLUE 2: A magnificent bushy red tail with a white tip!"
     ]
+  },
+  {
+    "topic_id": "baby_owl",
+    "name": "Baby Barn Owl",
+    "category": "birds",
+    "completed_at": "2026-11-02 00:18:15",
+    "clues": [
+      "CLUE 1: A heart-shaped feathery face!",
+      "CLUE 2: I turn my head almost all the way around at night!"
+    ]
   }
 ]
