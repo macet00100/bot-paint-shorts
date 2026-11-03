@@ -568,5 +568,15 @@
       "CLUE 1: Six tiny black walking feet and antennae!",
       "CLUE 2: A shiny scarlet dome shell with black polka dots!"
     ]
+  },
+  {
+    "topic_id": "baby_pufferfish",
+    "name": "Round Pufferfish",
+    "category": "sea_creatures",
+    "completed_at": "2026-11-03 00:18:23",
+    "clues": [
+      "CLUE 1: Big circular eyes and tiny fluttering fins!",
+      "CLUE 2: I puff up like a round spiky balloon when surprised!"
+    ]
   }
 ]
