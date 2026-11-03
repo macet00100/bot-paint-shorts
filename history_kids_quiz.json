@@ -578,5 +578,15 @@
       "CLUE 1: Big circular eyes and tiny fluttering fins!",
       "CLUE 2: I puff up like a round spiky balloon when surprised!"
     ]
+  },
+  {
+    "topic_id": "baby_fennec_fox",
+    "name": "Fennec Sand Fox",
+    "category": "animals",
+    "completed_at": "2026-11-03 12:18:16",
+    "clues": [
+      "CLUE 1: Giant bat-like ears bigger than my head!",
+      "CLUE 2: Sandy cream fur hopping across desert dunes!"
+    ]
   }
 ]
