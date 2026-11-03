@@ -588,5 +588,15 @@
       "CLUE 1: Giant bat-like ears bigger than my head!",
       "CLUE 2: Sandy cream fur hopping across desert dunes!"
     ]
+  },
+  {
+    "topic_id": "crunchy_carrot",
+    "name": "Crunchy Carrot",
+    "category": "vegetables",
+    "completed_at": "2026-11-03 16:18:33",
+    "clues": [
+      "CLUE 1: Bright orange pointy root that grows under soil!",
+      "CLUE 2: A bushy green leafy hairdo on top, bunnies love me!"
+    ]
   }
 ]
