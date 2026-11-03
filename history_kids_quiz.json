@@ -598,5 +598,15 @@
       "CLUE 1: Bright orange pointy root that grows under soil!",
       "CLUE 2: A bushy green leafy hairdo on top, bunnies love me!"
     ]
+  },
+  {
+    "topic_id": "baby_toucan",
+    "name": "Little Toucan",
+    "category": "birds",
+    "completed_at": "2026-11-03 20:18:26",
+    "clues": [
+      "CLUE 1: Glossy black jungle body feathers!",
+      "CLUE 2: A giant rainbow-colored banana-shaped beak!"
+    ]
   }
 ]
