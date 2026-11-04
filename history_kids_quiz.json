@@ -628,5 +628,15 @@
       "CLUE 1: Deep indigo blue coat with a silvery bloom!",
       "CLUE 2: A tiny five-pointed star crown sitting on top!"
     ]
+  },
+  {
+    "topic_id": "baby_walrus",
+    "name": "Baby Walrus",
+    "category": "animals",
+    "completed_at": "2026-11-04 16:18:21",
+    "clues": [
+      "CLUE 1: A thick bushy mustache of sensitive whiskers!",
+      "CLUE 2: Two tiny white tusks and heavy flippers for icy seas!"
+    ]
   }
 ]
