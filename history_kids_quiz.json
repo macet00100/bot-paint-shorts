@@ -608,5 +608,15 @@
       "CLUE 1: Glossy black jungle body feathers!",
       "CLUE 2: A giant rainbow-colored banana-shaped beak!"
     ]
+  },
+  {
+    "topic_id": "creamy_avocado",
+    "name": "Creamy Avocado",
+    "category": "fruits",
+    "completed_at": "2026-11-04 00:18:10",
+    "clues": [
+      "CLUE 1: Dark bumpy green skin on the outside!",
+      "CLUE 2: Smooth creamy green fruit with a giant round seed tummy!"
+    ]
   }
 ]
