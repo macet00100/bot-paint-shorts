@@ -618,5 +618,15 @@
       "CLUE 1: Dark bumpy green skin on the outside!",
       "CLUE 2: Smooth creamy green fruit with a giant round seed tummy!"
     ]
+  },
+  {
+    "topic_id": "sweet_blueberry",
+    "name": "Sweet Blueberry",
+    "category": "fruits",
+    "completed_at": "2026-11-04 12:18:08",
+    "clues": [
+      "CLUE 1: Deep indigo blue coat with a silvery bloom!",
+      "CLUE 2: A tiny five-pointed star crown sitting on top!"
+    ]
   }
 ]
