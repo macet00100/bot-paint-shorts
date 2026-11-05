@@ -658,5 +658,15 @@
       "CLUE 1: Low aerodynamic body and big rear spoiler wing!",
       "CLUE 2: Roaring high-speed engine zooming around the race track!"
     ]
+  },
+  {
+    "topic_id": "baby_flamingo",
+    "name": "Baby Flamingo",
+    "category": "birds",
+    "completed_at": "2026-11-05 12:18:21",
+    "clues": [
+      "CLUE 1: Stilt-like long legs and curved beak!",
+      "CLUE 2: Rosy pink feathers and I balance on one leg!"
+    ]
   }
 ]
