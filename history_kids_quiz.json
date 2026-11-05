@@ -648,5 +648,15 @@
       "CLUE 1: A woven wicker passenger basket hanging below!",
       "CLUE 2: A giant rainbow fabric balloon floating gently among clouds!"
     ]
+  },
+  {
+    "topic_id": "speedy_race_car",
+    "name": "Formula Race Car",
+    "category": "vehicles",
+    "completed_at": "2026-11-05 00:18:22",
+    "clues": [
+      "CLUE 1: Low aerodynamic body and big rear spoiler wing!",
+      "CLUE 2: Roaring high-speed engine zooming around the race track!"
+    ]
   }
 ]
