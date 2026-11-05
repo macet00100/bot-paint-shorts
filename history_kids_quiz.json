@@ -668,5 +668,15 @@
       "CLUE 1: Stilt-like long legs and curved beak!",
       "CLUE 2: Rosy pink feathers and I balance on one leg!"
     ]
+  },
+  {
+    "topic_id": "baby_sloth",
+    "name": "Baby Sloth",
+    "category": "animals",
+    "completed_at": "2026-11-05 20:18:02",
+    "clues": [
+      "CLUE 1: Curved friendly claws and gentle smile!",
+      "CLUE 2: I hang upside down and move super slow!"
+    ]
   }
 ]
