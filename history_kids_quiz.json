@@ -678,5 +678,15 @@
       "CLUE 1: Curved friendly claws and gentle smile!",
       "CLUE 2: I hang upside down and move super slow!"
     ]
+  },
+  {
+    "topic_id": "construction_excavator",
+    "name": "Busy Excavator",
+    "category": "vehicles",
+    "completed_at": "2026-11-06 00:17:53",
+    "clues": [
+      "CLUE 1: Tank treads that can crawl over rocky dirt!",
+      "CLUE 2: A mighty mechanical arm with a heavy digging bucket!"
+    ]
   }
 ]
