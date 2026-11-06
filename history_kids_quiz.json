@@ -688,5 +688,15 @@
       "CLUE 1: Tank treads that can crawl over rocky dirt!",
       "CLUE 2: A mighty mechanical arm with a heavy digging bucket!"
     ]
+  },
+  {
+    "topic_id": "happy_tomato",
+    "name": "Cheerful Red Tomato",
+    "category": "fruits",
+    "completed_at": "2026-11-06 12:17:49",
+    "clues": [
+      "CLUE 1: Plump glossy red skin full of juicy seeds!",
+      "CLUE 2: A five-point green star leaf cap, pizza sauce star!"
+    ]
   }
 ]
