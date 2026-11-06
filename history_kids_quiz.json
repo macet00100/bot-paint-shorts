@@ -708,5 +708,15 @@
       "CLUE 1: Soft velvety fuzzy skin you can feel!",
       "CLUE 2: Sweet blushing pink cheeks and a sweet stone inside!"
     ]
+  },
+  {
+    "topic_id": "rescue_helicopter",
+    "name": "Rescue Helicopter",
+    "category": "vehicles",
+    "completed_at": "2026-11-06 20:18:21",
+    "clues": [
+      "CLUE 1: Twin landing skids and a tail rotor blade!",
+      "CLUE 2: Giant spinning top blades that hover in midair!"
+    ]
   }
 ]
