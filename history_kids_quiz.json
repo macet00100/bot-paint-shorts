@@ -698,5 +698,15 @@
       "CLUE 1: Plump glossy red skin full of juicy seeds!",
       "CLUE 2: A five-point green star leaf cap, pizza sauce star!"
     ]
+  },
+  {
+    "topic_id": "rosy_peach",
+    "name": "Rosy Peach",
+    "category": "fruits",
+    "completed_at": "2026-11-06 16:17:17",
+    "clues": [
+      "CLUE 1: Soft velvety fuzzy skin you can feel!",
+      "CLUE 2: Sweet blushing pink cheeks and a sweet stone inside!"
+    ]
   }
 ]
