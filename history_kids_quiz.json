@@ -728,5 +728,15 @@
       "CLUE 1: Slender curled antennae and delicate legs!",
       "CLUE 2: Giant breathtaking stained-glass rainbow wings!"
     ]
+  },
+  {
+    "topic_id": "baby_duckling",
+    "name": "Yellow Duckling",
+    "category": "birds",
+    "completed_at": "2026-11-07 12:18:11",
+    "clues": [
+      "CLUE 1: An orange flat bill and paddle webbed feet!",
+      "CLUE 2: Fluffy bright yellow down feathers and happy quacks!"
+    ]
   }
 ]
