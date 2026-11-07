@@ -718,5 +718,15 @@
       "CLUE 1: Twin landing skids and a tail rotor blade!",
       "CLUE 2: Giant spinning top blades that hover in midair!"
     ]
+  },
+  {
+    "topic_id": "flutter_butterfly",
+    "name": "Flutter Butterfly",
+    "category": "insects",
+    "completed_at": "2026-11-07 00:18:12",
+    "clues": [
+      "CLUE 1: Slender curled antennae and delicate legs!",
+      "CLUE 2: Giant breathtaking stained-glass rainbow wings!"
+    ]
   }
 ]
